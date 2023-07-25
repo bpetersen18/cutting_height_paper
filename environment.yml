@@ -1,0 +1,8 @@
+name: cutting_height
+channels:
+  - conda-forge
+  - base
+  - R
+dependencies:
+  - r-base=4.3.1
+  - r-tidyverse=2.0.0

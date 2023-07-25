@@ -1,16 +1,16 @@
 #!/usr/bin/env Rscript
+# read_mxg_stem.R
+# By: Bryan Petersen
+# Date: 2023-07-25
+# Purpose: Read in the mxg stem data and convert to a long dataframe
+
 
 # Load libraries
 library(tidyverse)
 library(readxl)
 
-# Create directory if it doesn't already exist
-if (!file.exists("data/cutting_height")) {
-    dir.create("data/cutting_height")
-}
-
 # Read datasheet and convert to long dataframe
-mxg_segment_df <- read_excel("manual_data/cutting_height/observed/datasheet.xlsx") %>% 
+mxg_segment_df <- read_excel("data/raw/cutting_height_experiment_obs.xlsx") %>% 
     pivot_longer(cols = ends_with("stem_segments"), 
                  names_to = "segment",
                  names_transform = list(segment = readr::parse_number),
@@ -23,5 +23,5 @@ mxg_segment_df <- read_excel("manual_data/cutting_height/observed/datasheet.xlsx
     rename("block" = "Block", "plot" = "Plot", "stem_count" = "Stem Count (stems/m^2)")
 
 # Write out to a csv
-write_csv(mxg_segment_df, file = "data/cutting_height/serf_segment_data.csv")
+write_csv(mxg_segment_df, file = "data/derived/serf_segment_data.csv")
 

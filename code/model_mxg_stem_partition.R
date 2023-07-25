@@ -1,4 +1,20 @@
 #!/usr/bin/env Rscript
+# model_mxg_stem_partition.R
+# By: Bryan Petersen
+# Date: 2023-07-25
+# Purpose: Model the stem mass partitioning in miscanthus using the data from SERF
+# Input: data/derived/serf_segment_data.csv
+# Output: data/derived/mxg_stem_model.rds
+#         visuals/stem_count_boxplot.png
+#         visuals/stem_mass_vs_segment_nrate_factor.png
+#         visuals/stem_cumulative_mass_vs_segment_nrate_factor.png
+#         visuals/stem_mass_fraction_vs_segment_nrate_factor.png
+#         visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png
+#         visuals/stem_mass_fraction_vs_segment.png
+#         visuals/stem_cumulative_mass_fraction_vs_segment.png
+
+
+
 
 # Install nlraa
 install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")
@@ -11,7 +27,7 @@ library(nlme)
 library(emmeans)
 
 # Read csv file
-serf_segment_data <- read_csv(file = "data/cutting_height/serf_segment_data.csv")  %>% 
+serf_segment_data <- read_csv(file = "data/derived/serf_segment_data.csv")  %>% 
     mutate(nrate_factor = as.factor(nrate))
 
 ## ----------------------------------------------------- ##
@@ -40,7 +56,7 @@ p1 <- ggplot(data = stem_count, aes(x = nrate_factor, y = stem_count)) +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p1, filename = "visuals/cutting_height/stem_count_boxplot.png",
+ggsave(plot = p1, filename = "visuals/stem_count_boxplot.png",
        height = 8, width = 8, units = "in")
 
 # Are there outliers
@@ -161,7 +177,7 @@ p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill =
           axis.text = element_text(face = "bold", size = 16),
           legend.text = element_text(face = "bold", size = 16),
           legend.title = element_text(face = "bold", size = 16))
-ggsave(plot = p1, filename = "visuals/cutting_height/stem_mass_vs_segment_nrate_factor.png",
+ggsave(plot = p1, filename = "visuals/stem_mass_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative mass
@@ -192,7 +208,7 @@ p2 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p2, filename = "visuals/cutting_height/stem_cumulative_mass_vs_segment_nrate_factor.png",
+ggsave(plot = p2, filename = "visuals/stem_cumulative_mass_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
 
 
@@ -230,7 +246,7 @@ p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_facto
           legend.title = element_text(face = "bold", size = 16))
 
 # Save plot
-ggsave(plot = p3, filename = "visuals/cutting_height/stem_mass_fraction_vs_segment_nrate_factor.png",
+ggsave(plot = p3, filename = "visuals/stem_mass_fraction_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative mass fraction
@@ -254,7 +270,7 @@ p4 <- serf_segment_data_prds %>%
           legend.title = element_text(face = "bold"))
 
 # Save plot
-ggsave(plot = p4, filename = "visuals/cutting_height/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png",
+ggsave(plot = p4, filename = "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
 
 # Even though there is evidence against the null hypothesis that the relative
@@ -268,7 +284,7 @@ m2_rel <- lme(segment_mass_fraction ~ segment + nrate,
           random = ~ 1 | block)
 
 # Save model
-saveRDS(m2_rel, file = "data/cutting_height/mxg_stem_model.rds")
+saveRDS(m2_rel, file = "data/derived/mxg_stem_model.rds")
 
 # Plot
 new_data <- expand_grid(segment = seq(min(serf_segment_data$segment),
@@ -291,7 +307,7 @@ p5 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p5, filename = "visuals/cutting_height/stem_mass_fraction_vs_segment.png",
+ggsave(plot = p5, filename = "visuals/stem_mass_fraction_vs_segment.png",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative fractions
@@ -316,42 +332,28 @@ p6 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p6, filename = "visuals/cutting_height/stem_cumulative_mass_fraction_vs_segment.png",
+ggsave(plot = p6, filename = "visuals/stem_cumulative_mass_fraction_vs_segment.png",
        height = 8, width = 8, units = "in")
 
-tangent_df <- tibble(segment = seq(4, 44, by = 4)) %>%
-    mutate(m = 0.0059 - (4*10^(-5))*segment) %>%
-    filter(segment == 32) %>%
-    mutate(b = 0.175 - (m*32)) %>%
-    select(m, b)
+# tangent_df <- tibble(segment = seq(4, 44, by = 4)) %>%
+#     mutate(m = 0.0059 - (4*10^(-5))*segment) %>%
+#     filter(segment == 32) %>%
+#     mutate(b = 0.175 - (m*32)) %>%
+#     select(m, b)
 
-p7 <- ggplot() +
-    geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_fraction)) +
-    geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass)) +
-    geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound, ymax = cumulative_upper_bound), alpha = 0.3) +
-    geom_abline(data = tangent_df, aes(slope = m, intercept = b), color = "red") +
-    labs(x = "Stem Segment (cm)", y = "Cumulative Fraction of Stem Mass") +
-    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_fraction)), by = 0.05)) +
-    theme_bw() +
-    theme(axis.title = element_text(face = "bold"),
-          axis.text = element_text(face = "bold"),
-          legend.text = element_text(face = "bold"),
-          legend.title = element_text(face = "bold"))
+# p7 <- ggplot() +
+#     geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_fraction)) +
+#     geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass)) +
+#     geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound, ymax = cumulative_upper_bound), alpha = 0.3) +
+#     geom_abline(data = tangent_df, aes(slope = m, intercept = b), color = "red") +
+#     labs(x = "Stem Segment (cm)", y = "Cumulative Fraction of Stem Mass") +
+#     scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_fraction)), by = 0.05)) +
+#     theme_bw() +
+#     theme(axis.title = element_text(face = "bold"),
+#           axis.text = element_text(face = "bold"),
+#           legend.text = element_text(face = "bold"),
+#           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p7, filename = "visuals/cutting_height/stem_cumulative_mass_fraction_vs_segment_tangent.png",
-       height = 8, width = 8, units = "in")
-       
-p6_poster <- ggplot() +
-    geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_fraction*100), size = 4) +
-    geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass*100)) +
-    geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound*100, ymax = cumulative_upper_bound*100), alpha = 0.3) +
-    geom_vline(xintercept = 30, linewidth = 3) +
-    labs(x = "Stem Segment, cm", y = "Stem Mass Percent, %") +
-    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_fraction*100)), by = 5)) +
-    theme_bw() +
-    theme(axis.title = element_text(face = "bold", size = 16),
-          axis.text = element_text(face = "bold", size = 16))
-
-ggsave(plot = p6_poster, filename = "visuals/cutting_height/stem_cumulative_mass_fraction_vs_segment_poster.png",
-       height = 6, width = 12, units = "in", dpi = 1500)
+# ggsave(plot = p7, filename = "visuals/cutting_height/stem_cumulative_mass_fraction_vs_segment_tangent.png",
+#        height = 8, width = 8, units = "in")
 

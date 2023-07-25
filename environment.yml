@@ -6,3 +6,6 @@ channels:
 dependencies:
   - r-base=4.3.1
   - r-tidyverse=2.0.0
+  - r-rstatix
+  - r-nlme
+  - r-emmeans

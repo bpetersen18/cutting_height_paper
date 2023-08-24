@@ -19,7 +19,11 @@ rule targets:
         "visuals/cutting_height_obs_field.png",
         "visuals/cutting_height_obs_field.tiff",
         "visuals/cutting_height_obs.png",
-        "visuals/cutting_height_obs.tiff"
+        "visuals/cutting_height_obs.tiff",
+        "visuals/stem_cumulative_mass_vs_segment.png",
+        "visuals/stem_cumulative_mass_vs_segment.tiff",
+        "visuals/cutting_height_carbon.png",
+        "visuals/cutting_height_carbon.tiff"
 
 rule read_mxg_stem:
     input: 
@@ -50,7 +54,9 @@ rule model_mxg_stem_partition:
         "visuals/stem_mass_fraction_vs_segment.png",
         "visuals/stem_mass_fraction_vs_segment.tiff",
         "visuals/stem_mass_vs_segment_nrate_factor.png",
-        "visuals/stem_mass_vs_segment_nrate_factor.tiff"
+        "visuals/stem_mass_vs_segment_nrate_factor.tiff",
+        "visuals/stem_cumulative_mass_vs_segment.png",
+        "visuals/stem_cumulative_mass_vs_segment.tiff"
     shell:
         """
         {input.script}
@@ -65,6 +71,19 @@ rule plot_cutting_height:
         "visuals/cutting_height_obs_field.tiff",
         "visuals/cutting_height_obs.png",
         "visuals/cutting_height_obs.tiff"
+    shell:
+        """
+        {input.script}
+        """
+
+rule plot_cutting_height_carbon:
+    input:
+        script = "code/plot_cutting_height_carbon.R",
+        model = "data/derived/mxg_stem_model.rds",
+        data = "data/raw/cutting_height_obs.csv"
+    output:
+        "visuals/cutting_height_carbon.png",
+        "visuals/cutting_height_carbon.tiff"
     shell:
         """
         {input.script}

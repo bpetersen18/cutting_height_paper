@@ -58,6 +58,8 @@ p1 <- ggplot(data = stem_count, aes(x = nrate_factor, y = stem_count)) +
 
 ggsave(plot = p1, filename = "visuals/stem_count_boxplot.png",
        height = 8, width = 8, units = "in")
+ggsave(plot = p1, filename = "visuals/stem_count_boxplot.tiff",
+       height = 8, width = 8, units = "in")
 
 # Are there outliers
 stem_count %>% 
@@ -179,6 +181,8 @@ p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill =
           legend.title = element_text(face = "bold", size = 16))
 ggsave(plot = p1, filename = "visuals/stem_mass_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
+ggsave(plot = p1, filename = "visuals/stem_mass_vs_segment_nrate_factor.tiff",
+       height = 8, width = 8, units = "in")
 
 # Plot cumulative mass
 segment_data_cumulative <- serf_segment_data %>%
@@ -209,6 +213,8 @@ p2 <- ggplot() +
           legend.title = element_text(face = "bold"))
 
 ggsave(plot = p2, filename = "visuals/stem_cumulative_mass_vs_segment_nrate_factor.png",
+       height = 8, width = 8, units = "in")
+ggsave(plot = p2, filename = "visuals/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 
@@ -248,6 +254,8 @@ p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_facto
 # Save plot
 ggsave(plot = p3, filename = "visuals/stem_mass_fraction_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
+ggsave(plot = p3, filename = "visuals/stem_mass_fraction_vs_segment_nrate_factor.tiff",
+       height = 8, width = 8, units = "in")
 
 # Plot cumulative mass fraction
 p4 <- serf_segment_data_prds %>% 
@@ -271,6 +279,8 @@ p4 <- serf_segment_data_prds %>%
 
 # Save plot
 ggsave(plot = p4, filename = "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png",
+       height = 8, width = 8, units = "in")
+ggsave(plot = p4, filename = "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 # Even though there is evidence against the null hypothesis that the relative
@@ -309,6 +319,8 @@ p5 <- ggplot() +
 
 ggsave(plot = p5, filename = "visuals/stem_mass_fraction_vs_segment.png",
        height = 8, width = 8, units = "in")
+ggsave(plot = p5, filename = "visuals/stem_mass_fraction_vs_segment.tiff",
+       height = 8, width = 8, units = "in")
 
 # Plot cumulative fractions
 serf_segment_data_cumulative <- serf_segment_data %>%
@@ -334,6 +346,8 @@ p6 <- ggplot() +
 
 ggsave(plot = p6, filename = "visuals/stem_cumulative_mass_fraction_vs_segment.png",
        height = 8, width = 8, units = "in")
+ggsave(plot = p6, filename = "visuals/stem_cumulative_mass_fraction_vs_segment.tiff",
+         height = 8, width = 8, units = "in")
 
 # tangent_df <- tibble(segment = seq(4, 44, by = 4)) %>%
 #     mutate(m = 0.0059 - (4*10^(-5))*segment) %>%

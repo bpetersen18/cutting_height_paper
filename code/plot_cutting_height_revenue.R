@@ -7,7 +7,6 @@
 library(tidyverse)
 library(nlraa)
 
-
 # Load model
 mxg_model <- readRDS("data/derived/mxg_stem_model.rds")
 
@@ -45,8 +44,8 @@ yield_tbl <- bind_cols(cutting_height_df, cutting_height_preds) %>%
            estimate = fraction_stem_mass, 
            lower = fraction_stem_mass_lower,
            upper = fraction_stem_mass_upper) %>% 
-    # Assume a yield of 20 Mg ha-1
-    mutate(yield = 20) %>%
+    # Assume a yield of 8 ton ac-1
+    mutate(yield = 8) %>%
     # Calculate the yield left in the field
     mutate(yield_left_esti = yield * estimate, 
            yield_left_lower = yield * lower,
@@ -72,13 +71,14 @@ p1 <- yield_tbl %>%
        ggplot() +
        geom_line(aes(x = cutting_height, y = esti, color = yield_type)) +
        geom_ribbon(aes(x = cutting_height, ymin = lower, ymax = upper, fill = yield_type, color = NULL), alpha = 0.2) +
-       labs(x = "Cutting height, cm", y = bquote("Biomass, " ~Mg%.%ha^-1), fill = NULL, color = NULL) +
+       labs(x = "Cutting height, cm", y = bquote("Biomass, " ~ton%.%ac^-1), fill = NULL, color = NULL) +
        scale_fill_manual(labels = c("Harvested", "Left in field"), values = c("#E69F00", "#56B4E9")) +
        scale_color_manual(labels = c("Harvested", "Left in field"), values = c("#E69F00", "#56B4E9")) +
        theme_bw()
 
 # Save plot
-ggsave("visuals/cutting_height_yield_effect.png", p1, width = 6, height = 4, units = "in", dpi = 300)
+ggsave("visuals/cutting_height_yield_effect.png", p1, width = 8, height = 8, units = "in", dpi = 300)
+ggsave("visuals/cutting_height_yield_effect.tiff", p1, width = 8, height = 8, units = "in", dpi = 300)
 
 yield_delta_tbl <- yield_tbl %>% 
        # Pivot the data frame to long format
@@ -111,6 +111,7 @@ p2 <- yield_delta_tbl %>%
 
 # Save plot
 ggsave("visuals/cutting_height_yield_effect_delta.png", p2, width = 6, height = 4, units = "in", dpi = 300)
+ggsave("visuals/cutting_height_yield_effect_delta.tiff", p2, width = 6, height = 4, units = "in", dpi = 300)
 
 revenue_delta_tbl <- yield_delta_tbl %>% 
        # Pivot the data frame to long format

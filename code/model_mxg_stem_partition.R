@@ -349,6 +349,24 @@ ggsave(plot = p6, filename = "visuals/stem_cumulative_mass_fraction_vs_segment.p
 ggsave(plot = p6, filename = "visuals/stem_cumulative_mass_fraction_vs_segment.tiff",
          height = 8, width = 8, units = "in")
 
+# Plot biomass left in the field assuming a yield of 8 tons per acre
+p7 <- ggplot() +
+    geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass*8)) +
+    geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound*8, ymax = cumulative_upper_bound*8), alpha = 0.3) +
+    labs(x = "Cutting Height (cm)", y = "Biomass left in field (ton/acre)", caption = "Assumes a yield of 8 ton/ac") +
+    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_fraction*8)), by = 0.2)) +
+    theme_bw() +
+    theme(axis.title = element_text(face = "bold"),
+          axis.text = element_text(face = "bold"),
+          legend.text = element_text(face = "bold"),
+          legend.title = element_text(face = "bold"))
+
+# Save plot
+ggsave(plot = p7, filename = "visuals/stem_cumulative_mass_vs_segment.png",
+       height = 8, width = 8, units = "in")
+ggsave(plot = p7, filename = "visuals/stem_cumulative_mass_vs_segment.tiff",
+       height = 8, width = 8, units = "in")
+
 # tangent_df <- tibble(segment = seq(4, 44, by = 4)) %>%
 #     mutate(m = 0.0059 - (4*10^(-5))*segment) %>%
 #     filter(segment == 32) %>%

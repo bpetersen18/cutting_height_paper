@@ -25,6 +25,7 @@ library(rstatix)
 library(nlraa)
 library(nlme)
 library(emmeans)
+library(ggpubr)
 
 # Read csv file
 serf_segment_data <- read_csv(file = "data/derived/serf_segment_data.csv")  %>% 
@@ -82,9 +83,9 @@ stat_test
 
 # Student t-test suggests stem count is not different under the two different nitrogen rates
 
-## ------------------------- ##
-## Simple segment mass stats ##
-## ------------------------- ##
+## ------------------------------------------- ##
+## Simple segment mass stats grouped by N rate ##
+## ------------------------------------------- ##
 # Get just segment mass for each plot and segment location
 segment_mass <- serf_segment_data %>% 
     group_by(segment, nrate_factor, plot) %>% 
@@ -96,12 +97,28 @@ segment_mass_stats <- segment_mass %>%
     group_by(nrate_factor) %>% 
     get_summary_stats(segment_mass, type = "mean_ci")
 
+# Visualize the data using boxplots
+bxp <- ggboxplot(segment_mass, x = "nrate_factor", y = "segment_mass", ylab = "Stem Mass, g", xlab = "Nitrogen, kg/Ha", add = "jitter")
+
+# Save plot
+ggsave(plot = bxp, filename = "visuals/stem_mass_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
+
 # Are there outliers
 segment_mass %>% 
     group_by(nrate_factor) %>% 
     identify_outliers(segment_mass)
 
 # There are no extreme outliers
+
+# Check normality by groups
+segment_mass %>% 
+    group_by(nrate_factor) %>% 
+    shapiro_test(segment_mass)
+
+qqp <- ggqqplot(segment_mass, x = "segment_mass", facet.by = "nrate_factor")
+
+# Save plot
+ggsave(plot = qqp, filename = "visuals/stem_mass_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
 
 # Check the equality of variances
 levene_test_results <- segment_mass %>% 
@@ -115,9 +132,11 @@ stat_test <- segment_mass %>%
     add_significance()
 stat_test
 
-## ---------------------------------- ##
-## Simple segment relative mass stats ##
-## ---------------------------------- ##
+# Student t-test suggests segment mass is different under the two different nitrogen rates
+
+## ---------------------------------------------------- ##
+## Simple segment relative mass stats grouped by N rate ##
+## ---------------------------------------------------- ##
 # Get just segment mass for each plot and segment location
 segment_rel_mass <- serf_segment_data %>% 
     group_by(segment, nrate_factor, plot) %>% 
@@ -129,12 +148,28 @@ segment_rel_mass_stats <- segment_rel_mass %>%
     group_by(nrate_factor) %>% 
     get_summary_stats(segment_rel_mass, type = "mean_ci")
 
+# Visualize the data using boxplots
+bxp <- ggboxplot(segment_rel_mass, x = "nrate_factor", y = "segment_rel_mass", ylab = "Stem Mass, g", xlab = "Nitrogen, kg/Ha", add = "jitter")
+
+# Save plot
+ggsave(plot = bxp, filename = "visuals/stem_mass_fraction_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
+
 # Are there outliers
 segment_rel_mass %>% 
     group_by(nrate_factor) %>% 
     identify_outliers(segment_rel_mass)
 
 # There are no extreme outliers
+
+# Check normality by groups
+segment_rel_mass %>% 
+    group_by(nrate_factor) %>% 
+    shapiro_test(segment_rel_mass)
+
+qqp <- ggqqplot(segment_rel_mass, x = "segment_rel_mass", facet.by = "nrate_factor")
+
+# Save plot
+ggsave(plot = qqp, filename = "visuals/stem_mass_fraction_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
 
 # Check the equality of variances
 levene_test_results <- segment_rel_mass %>% 
@@ -147,6 +182,20 @@ stat_test <- segment_rel_mass %>%
     t_test(segment_rel_mass ~ nrate_factor, var.equal = TRUE) %>% 
     add_significance()
 stat_test
+
+## ------------------------------------------- ##
+## Check for normality of log transformed data ##
+## ------------------------------------------- ##
+segment_rel_mass %>%
+    mutate(log_segment_rel_mass = log(segment_rel_mass)) %>%
+    group_by(nrate_factor) %>% 
+    shapiro_test(log_segment_rel_mass)
+
+qqp <- ggqqplot(segment_rel_mass %>% mutate(log_segment_rel_mass = log(segment_rel_mass)), x = "log_segment_rel_mass", facet.by = "nrate_factor")
+
+# Save plot
+ggsave(plot = qqp, filename = "visuals/stem_mass_fraction_vs_nrate_qqplot_log.png", height = 8, width = 8, units = "in")
+
 
 ## ----------------------- ##
 ## Modelling absolute mass ##

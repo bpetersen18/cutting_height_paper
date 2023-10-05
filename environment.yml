@@ -12,3 +12,4 @@ dependencies:
   - r-emmeans=1.8.7
   - r-ggpubr=0.6.0
   - snakemake=7.30.2
+  - python=3.11.6

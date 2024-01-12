@@ -53,3 +53,6 @@ rsconnect/
 
 # Visuals directory
 visuals/
+
+# Internal data directory
+data/inernal/

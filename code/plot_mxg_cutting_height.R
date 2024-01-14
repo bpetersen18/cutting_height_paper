@@ -1,13 +1,21 @@
-#!/usr/bin/env Rscript
 # plot_mxg_cutting_height.R
 # By: Bryan Petersen
-# Date: 2023-08-24
+# Date: 2024-01-14
+# Purpose: Plot the cutting height from observations at the commercial fields in April 2021
+# Input: data/external/cutting_height_obs.csv
+# Output: visuals/cutting_height/obs_boxplot.png
+#         visuals/cutting_height/obs_boxplot.tiff
+#         visuals/cutting_height/obs_field_boxplot.png
+#         visuals/cutting_height/obs_field_boxplot.tiff
 
 # Load libraries
 library(tidyverse)
 
+# Create the visuals/cutting_height directory if it doesn't exist
+dir.create("visuals/cutting_height", showWarnings = FALSE, recursive = TRUE)
+
 # Read data
-data_tbl <- read_csv(file = "data/raw/cutting_height_obs.csv")
+data_tbl <- read_csv(file = "data/external/cutting_height_obs.csv")
 
 # Plot the cutting height with a single boxplot for all the observations
 p1 <- data_tbl %>%
@@ -22,8 +30,8 @@ p1 <- data_tbl %>%
           axis.text.y = element_text(size = 12, face = "bold"))
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height_obs.png", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
-ggsave(filename = "visuals/cutting_height_obs.tiff", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
+ggsave(filename = "visuals/cutting_height/obs_boxplot.png", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
+ggsave(filename = "visuals/cutting_height/obs_boxplot.tiff", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
 
 pretty_labels <- c("dahlen" = "Dahlen",
                    "freddies" = "Freddies",
@@ -43,5 +51,5 @@ p2 <- data_tbl %>%
           axis.title = element_text(size = 14, face = "bold"))
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height_obs_field.png", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
-ggsave(filename = "visuals/cutting_height_obs_field.tiff", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
+ggsave(filename = "visuals/cutting_height/obs_field_boxplot.png", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
+ggsave(filename = "visuals/cutting_height/obs_field_boxplot.tiff", plot = p2, width = 8, height = 8, units = "in", dpi = 300)

@@ -1,23 +1,34 @@
-#!/usr/bin/env Rscript
 # model_mxg_stem_partition.R
 # By: Bryan Petersen
-# Date: 2023-07-25
+# Date: 2024-01-13
 # Purpose: Model the stem mass partitioning in miscanthus using the data from SERF
-# Input: data/derived/serf_segment_data.csv
-# Output: data/derived/mxg_stem_model.rds
-#         visuals/stem_count_boxplot.png
-#         visuals/stem_mass_vs_segment_nrate_factor.png
-#         visuals/stem_cumulative_mass_vs_segment_nrate_factor.png
-#         visuals/stem_mass_fraction_vs_segment_nrate_factor.png
-#         visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png
-#         visuals/stem_mass_fraction_vs_segment.png
-#         visuals/stem_cumulative_mass_fraction_vs_segment.png
+# Input: data/internal/mxg/serf_segment_data.csv
+# Output: data/internal/mxg/stem_model.rds
+#         visuals/mxg_stem_model/stem_count_boxplot.png
+#         visuals/mxg_stem_model/stem_count_boxplot.tiff
+#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.png
+#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff
+#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.png
+#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.png
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.png
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff
+#         visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.png
+#         visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff
+#         visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.png
+#         visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.png
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff
+#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.png
+#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.png
+#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff
+#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png
+#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff
 
-
-
-
-# Install nlraa
-install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")
+# Install nlraa if not installed in the current library
+if (!require("nlraa")){install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")}
 
 # Load libraries
 library(tidyverse)
@@ -27,8 +38,11 @@ library(nlme)
 library(emmeans)
 library(ggpubr)
 
+# Create the "visuals/mxg_stem_model" directory if it doesn't exist
+dir.create("visuals/mxg_stem_model", showWarnings = FALSE, recursive = TRUE)
+
 # Read csv file
-serf_segment_data <- read_csv(file = "data/derived/serf_segment_data.csv")  %>% 
+serf_segment_data <- read_csv(file = "data/internal/mxg/serf_segment_data.csv")  %>% 
     mutate(nrate_factor = as.factor(nrate))
 
 ## ----------------------------------------------------- ##
@@ -57,9 +71,9 @@ p1 <- ggplot(data = stem_count, aes(x = nrate_factor, y = stem_count)) +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p1, filename = "visuals/stem_count_boxplot.png",
+ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_count_boxplot.png",
        height = 8, width = 8, units = "in")
-ggsave(plot = p1, filename = "visuals/stem_count_boxplot.tiff",
+ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_count_boxplot.tiff",
        height = 8, width = 8, units = "in")
 
 # Are there outliers
@@ -83,132 +97,139 @@ stat_test
 
 # Student t-test suggests stem count is not different under the two different nitrogen rates
 
-## ------------------------------------------- ##
-## Simple segment mass stats grouped by N rate ##
-## ------------------------------------------- ##
-# Get just segment mass for each plot and segment location
-segment_mass <- serf_segment_data %>% 
+## ----------------------------------------------------- ##
+## Simple segment linear density stats grouped by N rate ##
+## ----------------------------------------------------- ##
+# Get just segment linear density for each plot and segment location
+segment_linear_density_tbl <- serf_segment_data %>%
+    mutate(segment_linear_density = segment_mass/4) %>% 
     group_by(segment, nrate_factor, plot) %>% 
-    summarise(segment_mass = mean(segment_mass)) %>% 
+    summarise(segment_linear_density = mean(segment_linear_density)) %>% 
     ungroup()
 
 # Calculate summary stats
-segment_mass_stats <- segment_mass %>% 
+segment_linear_density_stats <- segment_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
-    get_summary_stats(segment_mass, type = "mean_ci")
+    get_summary_stats(segment_linear_density, type = "mean_ci")
 
 # Visualize the data using boxplots
-bxp <- ggboxplot(segment_mass, x = "nrate_factor", y = "segment_mass", ylab = "Stem Mass, g", xlab = "Nitrogen, kg/Ha", add = "jitter")
+bxp <- ggboxplot(segment_linear_density_tbl, x = "nrate_factor", y = "segment_linear_density", ylab = "Stem Linear Density, g/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = bxp, filename = "visuals/stem_mass_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
-segment_mass %>% 
+segment_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
-    identify_outliers(segment_mass)
+    identify_outliers(segment_linear_density)
 
 # There are no extreme outliers
 
 # Check normality by groups
-segment_mass %>% 
+segment_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
-    shapiro_test(segment_mass)
+    shapiro_test(segment_linear_density)
 
-qqp <- ggqqplot(segment_mass, x = "segment_mass", facet.by = "nrate_factor")
+# The shapiro test suggests the O N rate data is not normal
+
+# Plot qqplot
+qqp <- ggqqplot(segment_linear_density_tbl, x = "segment_linear_density", facet.by = "nrate_factor")
 
 # Save plot
-ggsave(plot = qqp, filename = "visuals/stem_mass_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
+
+# The qqplot looks okay to assume normality. Therefore, we'll assume normality
 
 # Check the equality of variances
-levene_test_results <- segment_mass %>% 
-    levene_test(segment_mass ~ nrate_factor)
+levene_test_results <- segment_linear_density_tbl %>% 
+    levene_test(segment_linear_density ~ nrate_factor)
 
 # Levene's test suggests the variances are equal
 
 # Compute t-test
-stat_test <- segment_mass %>% 
-    t_test(segment_mass ~ nrate_factor, var.equal = TRUE) %>% 
+stat_test <- segment_linear_density_tbl %>% 
+    t_test(segment_linear_density ~ nrate_factor, var.equal = TRUE) %>% 
     add_significance()
 stat_test
 
-# Student t-test suggests segment mass is different under the two different nitrogen rates
+# Student t-test suggests segment linear density is different under the two different nitrogen rates
 
-## ---------------------------------------------------- ##
-## Simple segment relative mass stats grouped by N rate ##
-## ---------------------------------------------------- ##
+## -------------------------------------------------------------- ##
+## Simple segment relative linear density stats grouped by N rate ##
+## -------------------------------------------------------------- ##
 # Get just segment mass for each plot and segment location
-segment_rel_mass <- serf_segment_data %>% 
+segment_rel_linear_density_tbl <- serf_segment_data %>%
+    mutate(segment_rel_linear_density = segment_mass_fraction/4*100) %>% 
     group_by(segment, nrate_factor, plot) %>% 
-    summarise(segment_rel_mass = mean(segment_mass_fraction)) %>% 
+    summarise(segment_rel_linear_density = mean(segment_rel_linear_density)) %>% 
     ungroup()
 
 # Calculate summary stats
-segment_rel_mass_stats <- segment_rel_mass %>% 
+segment_rel_linear_density_tbl_stats <- segment_rel_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
-    get_summary_stats(segment_rel_mass, type = "mean_ci")
+    get_summary_stats(segment_rel_linear_density, type = "mean_ci")
 
 # Visualize the data using boxplots
-bxp <- ggboxplot(segment_rel_mass, x = "nrate_factor", y = "segment_rel_mass", ylab = "Stem Mass, g", xlab = "Nitrogen, kg/Ha", add = "jitter")
+bxp <- ggboxplot(segment_rel_linear_density_tbl, x = "nrate_factor", y = "segment_rel_linear_density", ylab = "Relative Stem Linear Density, %/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = bxp, filename = "visuals/stem_mass_fraction_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
-segment_rel_mass %>% 
+segment_rel_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
-    identify_outliers(segment_rel_mass)
+    identify_outliers(segment_rel_linear_density)
 
 # There are no extreme outliers
 
 # Check normality by groups
-segment_rel_mass %>% 
+segment_rel_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
-    shapiro_test(segment_rel_mass)
+    shapiro_test(segment_rel_linear_density)
 
-qqp <- ggqqplot(segment_rel_mass, x = "segment_rel_mass", facet.by = "nrate_factor")
+# The shapiro test suggests the O N rate data is not normal
+
+qqp <- ggqqplot(segment_rel_linear_density_tbl, x = "segment_rel_linear_density", facet.by = "nrate_factor")
+
+# The qqplot looks okay to assume normality. There are two outliers in the 0 N rate data that appear to be driving the non-normality in the Shapiro test. We will assume normality for now. We will remove the outliers and see how it affects the mixed linear model later in the script.
 
 # Save plot
-ggsave(plot = qqp, filename = "visuals/stem_mass_fraction_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
+ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
 
 # Check the equality of variances
-levene_test_results <- segment_rel_mass %>% 
-    levene_test(segment_rel_mass ~ nrate_factor)
+levene_test_results <- segment_rel_linear_density_tbl %>% 
+    levene_test(segment_rel_linear_density ~ nrate_factor)
 
 # Levene's test suggests the variances are equal
 
 # Compute t-test
-stat_test <- segment_rel_mass %>% 
-    t_test(segment_rel_mass ~ nrate_factor, var.equal = TRUE) %>% 
+stat_test <- segment_rel_linear_density_tbl %>% 
+    t_test(segment_rel_linear_density ~ nrate_factor, var.equal = TRUE) %>% 
     add_significance()
 stat_test
 
-## ------------------------------------------- ##
-## Check for normality of log transformed data ##
-## ------------------------------------------- ##
-segment_rel_mass %>%
-    mutate(log_segment_rel_mass = log(segment_rel_mass)) %>%
-    group_by(nrate_factor) %>% 
-    shapiro_test(log_segment_rel_mass)
-
-qqp <- ggqqplot(segment_rel_mass %>% mutate(log_segment_rel_mass = log(segment_rel_mass)), x = "log_segment_rel_mass", facet.by = "nrate_factor")
-
-# Save plot
-ggsave(plot = qqp, filename = "visuals/stem_mass_fraction_vs_nrate_qqplot_log.png", height = 8, width = 8, units = "in")
+# Student t-test suggests segment linear density is different under the two different nitrogen rates
 
 
-## ----------------------- ##
-## Modelling absolute mass ##
-## ----------------------- ##
-# Mixed model of segment stem mass with segment
+## --------------------------------- ##
+## Modelling absolute linear density ##
+## --------------------------------- ##
+# Mixed model of segment stem linear density with segment
 # location (4 represents segement from 0 to 4 cm
 # and 9 represents from 4 to 8 cm), nitrogen rate (factor), and
 # interaction as fixed effects and block as random effects
-m1_abs <- lme(segment_mass ~ segment * nrate_factor,
+serf_segment_data <- serf_segment_data %>% 
+    mutate(segment_linear_density = segment_mass/4,
+           segment_rel_linear_density = segment_mass_fraction/4*100)
+m1_abs <- lme(segment_linear_density ~ segment * nrate_factor,
               data = serf_segment_data,
               random = ~ 1 | block)
 
-# Test null hypothesis that the absolute mass distribution does
+# Test null hypothesis that the stem linear density distribution does
 # not change for different nitrogen rates
 anova(m1_abs, type = "sequential")
 
@@ -219,31 +240,33 @@ abs_prds <- predict_lme(m1_abs, interval = "conf")
 abs_data_prds <- serf_segment_data %>% bind_cols(abs_prds)
 
 p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill = nrate_factor)) +
-    geom_point(aes(y = segment_mass/4)) +
-    geom_line(aes(y = Estimate/4)) +
-    geom_ribbon(aes(ymin = Q2.5/4, ymax = Q97.5/4, color = NULL), alpha = 0.3) +
-    labs(x = "Stem Segment, cm", y = bquote(bold("Stem Mass, " ~g%.%cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
+    geom_point(aes(y = segment_linear_density)) +
+    geom_line(aes(y = Estimate)) +
+    geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5, color = NULL), alpha = 0.3) +
+    labs(x = "Stem Segment, cm", y = bquote(bold("Stem Linear Density, " ~g%.%cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold", size = 16),
           axis.text = element_text(face = "bold", size = 16),
           legend.text = element_text(face = "bold", size = 16),
-          legend.title = element_text(face = "bold", size = 16))
-ggsave(plot = p1, filename = "visuals/stem_mass_vs_segment_nrate_factor.png",
+          legend.title = element_text(face = "bold", size = 16),
+          legend.position = c(0.8, 0.8))
+ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
-ggsave(plot = p1, filename = "visuals/stem_mass_vs_segment_nrate_factor.tiff",
+ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
-# Plot cumulative mass
+# Plot cumulative stem mass
 segment_data_cumulative <- serf_segment_data %>%
     group_by(plot) %>%
-    mutate(cumulative_segment_mass = cumsum(segment_mass))
+    mutate(cumulative_segment_mass = cumsum(segment_mass)) %>% 
+    ungroup()
 
 prds_cumulative <- abs_data_prds %>%
-    group_by(plot) %>% 
-    mutate(cumulative_segment_mass = cumsum(Estimate),
-           cumulative_lower_bound = cumsum(Q2.5),
-           cumulative_upper_bound = cumsum(Q97.5)) %>% 
-    ungroup() %>% 
+    group_by(plot) %>%
+    mutate(cumulative_segment_mass = cumsum(Estimate*4),
+           cumulative_lower_bound = cumsum(Q2.5*4),
+           cumulative_upper_bound = cumsum(Q97.5*4)) %>% 
+    ungroup() %>%
     group_by(nrate_factor, segment) %>% 
     summarise(cumulative_segment_mass = mean(cumulative_segment_mass),
            cumulative_lower_bound = mean(cumulative_lower_bound),
@@ -261,21 +284,20 @@ p2 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p2, filename = "visuals/stem_cumulative_mass_vs_segment_nrate_factor.png",
+ggsave(plot = p2, filename = "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
-ggsave(plot = p2, filename = "visuals/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
+ggsave(plot = p2, filename = "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 
-## ------------------------ ##
-## Modelling factional mass ##
-## ------------------------ ##
-
-# Mixed model of fraction of total stem mass with segment
+## --------------------------------- ##
+## Modelling relative linear density ##
+## --------------------------------- ##
+# Mixed model of the relative linear density with segment
 # location (4 represents segement from 0 to 4 cm
 # and 9 represents from 4 to 8 cm), nitrogen rate (factor), and
 # interaction as fixed effects and block as random effects
-m1_rel  <- lme(segment_mass_fraction ~ segment * nrate_factor,
+m1_rel  <- lme(segment_rel_linear_density ~ segment * nrate_factor,
            data = serf_segment_data,
            random = ~ 1 | block)
 
@@ -290,36 +312,37 @@ prds <- predict_lme(m1_rel, interval = "conf")
 serf_segment_data_prds <- serf_segment_data %>% bind_cols(prds)
 
 p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_factor, fill = nrate_factor)) +
-    geom_point(aes(y = segment_mass_fraction*100/4)) +
-    geom_line(aes(y = Estimate*100/4)) +
-    geom_ribbon(aes(ymin = Q2.5*100/4, ymax = Q97.5*100/4, color = NULL), alpha = 0.3) +
-    labs(x = "Stem Segment, cm", y = bquote(bold("Stem Mass Percent, " ~cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
+    geom_point(aes(y = segment_rel_linear_density)) +
+    geom_line(aes(y = Estimate)) +
+    geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5, color = NULL), alpha = 0.3) +
+    labs(x = "Stem Segment, cm", y = bquote(bold("Relative Stem Linear Density, %" ~"\u00B7"~ cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold", size = 16),
           axis.text = element_text(face = "bold", size = 16),
           legend.text = element_text(face = "bold", size = 16),
-          legend.title = element_text(face = "bold", size = 16))
+          legend.title = element_text(face = "bold", size = 16),
+          legend.position = c(0.8, 0.8))
 
 # Save plot
-ggsave(plot = p3, filename = "visuals/stem_mass_fraction_vs_segment_nrate_factor.png",
+ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
-ggsave(plot = p3, filename = "visuals/stem_mass_fraction_vs_segment_nrate_factor.tiff",
+ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
-# Plot cumulative mass fraction
+# Plot cumulative mass percent
 p4 <- serf_segment_data_prds %>% 
     group_by(plot) %>% 
-    mutate(cumulative_segment_mass_fraction_obs = cumsum(segment_mass_fraction),
-           cumulative_segment_mass_fraction_mod = cumsum(Estimate),
-           cumulative_lower_bound = cumsum(Q2.5),
-           cumulative_upper_bound = cumsum(Q97.5)) %>% 
+    mutate(cumulative_segment_mass_percent_obs = cumsum(segment_rel_linear_density*4),
+           cumulative_segment_mass_percent_mod = cumsum(Estimate*4),
+           cumulative_lower_bound = cumsum(Q2.5*4),
+           cumulative_upper_bound = cumsum(Q97.5*4)) %>% 
     ungroup() %>% 
     ggplot(aes(x = segment, color = nrate_factor, fill = nrate_factor)) +
-    geom_point(aes(y = cumulative_segment_mass_fraction_obs)) +
-    geom_line(aes(y = cumulative_segment_mass_fraction_mod)) +
+    geom_point(aes(y = cumulative_segment_mass_percent_obs)) +
+    geom_line(aes(y = cumulative_segment_mass_percent_mod)) +
     geom_ribbon(aes(ymin = cumulative_lower_bound, ymax = cumulative_upper_bound, color = NULL), alpha = 0.3) +
-    labs(x = "Stem Segment, cm", y = "Cumulative Fraction of Stem Mass", color = "Nitrogen (kg/Ha)", fill = "Nitrogen (kg/Ha)") +
-    scale_y_continuous(breaks = seq(0, 0.3, 0.05)) +
+    labs(x = "Stem Segment, cm", y = "Cumulative Stem Mass Percent", color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
+    scale_y_continuous(breaks = seq(0, 30, 5)) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold"),
           axis.text = element_text(face = "bold"),
@@ -327,9 +350,9 @@ p4 <- serf_segment_data_prds %>%
           legend.title = element_text(face = "bold"))
 
 # Save plot
-ggsave(plot = p4, filename = "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png",
+ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.png",
        height = 8, width = 8, units = "in")
-ggsave(plot = p4, filename = "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.tiff",
+ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 # Even though there is evidence against the null hypothesis that the relative
@@ -338,12 +361,12 @@ ggsave(plot = p4, filename = "visuals/stem_cumulative_mass_fraction_vs_segment_n
 # Therefore, we'll keep the same model structure,
 # but will assume a mean nrate of 100 kg/Ha
 
-m2_rel <- lme(segment_mass_fraction ~ segment + nrate,
-          data = serf_segment_data,
+m2_rel <- lme(segment_rel_linear_density ~ segment + nrate,
+          data = serf_segment_data, 
           random = ~ 1 | block)
 
 # Save model
-saveRDS(m2_rel, file = "data/derived/mxg_stem_model.rds")
+saveRDS(m2_rel, file = "data/internal/mxg/stem_model.rds")
 
 # Plot
 new_data <- expand_grid(segment = seq(min(serf_segment_data$segment),
@@ -355,86 +378,47 @@ prds <- predict_lme(m2_rel, interval = "conf", newdata = new_data)
 
 prds <- new_data %>% bind_cols(prds)
 
+# Plot the relative linear density vs segment
 p5 <- ggplot() +
-    geom_point(data = serf_segment_data, aes(x = segment, y = segment_mass_fraction)) +
+    geom_point(data = serf_segment_data, aes(x = segment, y = segment_rel_linear_density)) +
     geom_line(data = prds, aes(x = segment, y = Estimate)) +
     geom_ribbon(data = prds, aes(x = segment, ymin = Q2.5, ymax = Q97.5), alpha = 0.3) +
-    labs(x = "Stem Segment, cm", y = "Fraction of Stem Mass") +
+    labs(x = "Stem Segment, cm", y = bquote(bold("Relative Stem Linear Density, %" ~"\u00B7"~ cm^-1))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold"),
           axis.text = element_text(face = "bold"),
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p5, filename = "visuals/stem_mass_fraction_vs_segment.png",
+ggsave(plot = p5, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.png",
        height = 8, width = 8, units = "in")
-ggsave(plot = p5, filename = "visuals/stem_mass_fraction_vs_segment.tiff",
+ggsave(plot = p5, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff",
        height = 8, width = 8, units = "in")
 
-# Plot cumulative fractions
+# Plot cumulative mass percent
 serf_segment_data_cumulative <- serf_segment_data %>%
     group_by(plot) %>%
-    mutate(cumulative_segment_mass_fraction = cumsum(segment_mass_fraction))
+    mutate(cumulative_segment_mass_percent = cumsum(segment_rel_linear_density*4))
 
 prds_cumulative <- prds %>%
-    mutate(cumulative_segment_mass = cumsum(Estimate),
-           cumulative_lower_bound = cumsum(Q2.5),
-           cumulative_upper_bound = cumsum(Q97.5))
+    mutate(cumulative_segment_mass = cumsum(Estimate*4),
+           cumulative_lower_bound = cumsum(Q2.5*4),
+           cumulative_upper_bound = cumsum(Q97.5*4))
 
 p6 <- ggplot() +
-    geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_fraction)) +
+    geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_percent)) +
     geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass)) +
     geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound, ymax = cumulative_upper_bound), alpha = 0.3) +
-    labs(x = "Stem Segment (cm)", y = "Cumulative Fraction of Stem Mass") +
-    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_fraction)), by = 0.05)) +
+    labs(x = "Stem Segment, cm", y = "Cumulative Stem Mass Percent") +
+    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_percent)), by = 5)) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold"),
           axis.text = element_text(face = "bold"),
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p6, filename = "visuals/stem_cumulative_mass_fraction_vs_segment.png",
+ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png",
        height = 8, width = 8, units = "in")
-ggsave(plot = p6, filename = "visuals/stem_cumulative_mass_fraction_vs_segment.tiff",
+ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
          height = 8, width = 8, units = "in")
-
-# Plot biomass left in the field assuming a yield of 8 tons per acre
-p7 <- ggplot() +
-    geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass*8)) +
-    geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound*8, ymax = cumulative_upper_bound*8), alpha = 0.3) +
-    labs(x = "Cutting Height (cm)", y = "Biomass left in field (ton/acre)", caption = "Assumes a yield of 8 ton/ac") +
-    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_fraction*8)), by = 0.2)) +
-    theme_bw() +
-    theme(axis.title = element_text(face = "bold"),
-          axis.text = element_text(face = "bold"),
-          legend.text = element_text(face = "bold"),
-          legend.title = element_text(face = "bold"))
-
-# Save plot
-ggsave(plot = p7, filename = "visuals/stem_cumulative_mass_vs_segment.png",
-       height = 8, width = 8, units = "in")
-ggsave(plot = p7, filename = "visuals/stem_cumulative_mass_vs_segment.tiff",
-       height = 8, width = 8, units = "in")
-
-# tangent_df <- tibble(segment = seq(4, 44, by = 4)) %>%
-#     mutate(m = 0.0059 - (4*10^(-5))*segment) %>%
-#     filter(segment == 32) %>%
-#     mutate(b = 0.175 - (m*32)) %>%
-#     select(m, b)
-
-# p7 <- ggplot() +
-#     geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_fraction)) +
-#     geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass)) +
-#     geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound, ymax = cumulative_upper_bound), alpha = 0.3) +
-#     geom_abline(data = tangent_df, aes(slope = m, intercept = b), color = "red") +
-#     labs(x = "Stem Segment (cm)", y = "Cumulative Fraction of Stem Mass") +
-#     scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_fraction)), by = 0.05)) +
-#     theme_bw() +
-#     theme(axis.title = element_text(face = "bold"),
-#           axis.text = element_text(face = "bold"),
-#           legend.text = element_text(face = "bold"),
-#           legend.title = element_text(face = "bold"))
-
-# ggsave(plot = p7, filename = "visuals/cutting_height/stem_cumulative_mass_fraction_vs_segment_tangent.png",
-#        height = 8, width = 8, units = "in")
 

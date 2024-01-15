@@ -6,10 +6,12 @@
 # Output: data/internal/mxg/stem_model.rds
 #         visuals/mxg_stem_model/stem_count_boxplot.png
 #         visuals/mxg_stem_model/stem_count_boxplot.tiff
+#         data/internal/mxg/segment_linear_density_stats.csv
 #         visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.png
 #         visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff
 #         visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.png
 #         visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff
+#         data/internal/mxg/segment_rel_linear_density_stats.csv
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.png
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.png
@@ -26,6 +28,8 @@
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff
 #         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png
 #         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff
+#         data/internal/mxg/final_linear_regression_inferences.csv
+#         data/internal/mxg/prds_cumulative.csv
 
 # Install nlraa if not installed in the current library
 if (!require("nlraa")){install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")}
@@ -112,6 +116,9 @@ segment_linear_density_stats <- segment_linear_density_tbl %>%
     group_by(nrate_factor) %>% 
     get_summary_stats(segment_linear_density, type = "mean_ci")
 
+# Write out summary stats
+write_csv(segment_linear_density_stats, file = "data/internal/mxg/segment_linear_density_stats.csv")
+
 # Visualize the data using boxplots
 bxp <- ggboxplot(segment_linear_density_tbl, x = "nrate_factor", y = "segment_linear_density", ylab = "Stem Linear Density, g/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
@@ -170,6 +177,9 @@ segment_rel_linear_density_tbl <- serf_segment_data %>%
 segment_rel_linear_density_tbl_stats <- segment_rel_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
     get_summary_stats(segment_rel_linear_density, type = "mean_ci")
+
+# Write out summary stats
+write_csv(segment_rel_linear_density_tbl_stats, file = "data/internal/mxg/segment_rel_linear_density_stats.csv")
 
 # Visualize the data using boxplots
 bxp <- ggboxplot(segment_rel_linear_density_tbl, x = "nrate_factor", y = "segment_rel_linear_density", ylab = "Relative Stem Linear Density, %/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
@@ -368,7 +378,29 @@ m2_rel <- lme(segment_rel_linear_density ~ segment + nrate,
 # Save model
 saveRDS(m2_rel, file = "data/internal/mxg/stem_model.rds")
 
-# Plot
+# Make predictions for numbers in the paper
+new_data <- expand_grid(segment = seq(min(serf_segment_data$segment),
+                                      max(serf_segment_data$segment),
+                                      by = 1), 
+                        nrate = 112)
+prds <- predict_lme(m2_rel, interval = "conf", newdata = new_data)
+
+prds_paper <- new_data %>% bind_cols(prds) %>% 
+    # Rename columns
+    rename(rel_linear_density = Estimate,
+           rel_linear_density_lower_bound = Q2.5,
+           rel_linear_density_upper_bound = Q97.5) %>%
+    mutate(cumulative_stem_mass_percent = if_else(segment == 4, rel_linear_density*4, rel_linear_density)) %>% 
+    mutate(cumulative_stem_mass_percent = cumsum(cumulative_stem_mass_percent),
+           cumulative_stem_mass_percent_lower_bound = if_else(segment == 4, rel_linear_density_lower_bound*4, rel_linear_density_lower_bound),
+           cumulative_stem_mass_percent_lower_bound = cumsum(cumulative_stem_mass_percent_lower_bound),
+           cumulative_stem_mass_percent_upper_bound = if_else(segment == 4, rel_linear_density_upper_bound*4, rel_linear_density_upper_bound),
+           cumulative_stem_mass_percent_upper_bound = cumsum(cumulative_stem_mass_percent_upper_bound))
+
+# Write out the prds_paper data
+write_csv(prds_paper, file = "data/internal/mxg/final_linear_regression_inferences.csv")
+
+# Make predictions for plotting
 new_data <- expand_grid(segment = seq(min(serf_segment_data$segment),
                                       max(serf_segment_data$segment),
                                       by = 4), 
@@ -421,4 +453,3 @@ ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percen
        height = 8, width = 8, units = "in")
 ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
          height = 8, width = 8, units = "in")
-

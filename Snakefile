@@ -1,90 +1,115 @@
 rule targets:
     input:
-        "data/derived/serf_segment_data.csv",
-        "data/derived/mxg_stem_model.rds",
-        "visuals/stem_count_boxplot.png",
-        "visuals/stem_count_boxplot.tiff",
-        "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png",
-        "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.tiff",
-        "visuals/stem_cumulative_mass_fraction_vs_segment.png",
-        "visuals/stem_cumulative_mass_fraction_vs_segment.tiff",
-        "visuals/stem_cumulative_mass_vs_segment_nrate_factor.png",
-        "visuals/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
-        "visuals/stem_mass_fraction_vs_segment_nrate_factor.png",
-        "visuals/stem_mass_fraction_vs_segment_nrate_factor.tiff",
-        "visuals/stem_mass_fraction_vs_segment.png",
-        "visuals/stem_mass_fraction_vs_segment.tiff",
-        "visuals/stem_mass_vs_segment_nrate_factor.png",
-        "visuals/stem_mass_vs_segment_nrate_factor.tiff",
-        "visuals/cutting_height_obs_field.png",
-        "visuals/cutting_height_obs_field.tiff",
-        "visuals/cutting_height_obs.png",
-        "visuals/cutting_height_obs.tiff",
-        "visuals/stem_cumulative_mass_vs_segment.png",
-        "visuals/stem_cumulative_mass_vs_segment.tiff",
-        "visuals/cutting_height_carbon.png",
-        "visuals/cutting_height_carbon.tiff"
+        "data/internal/mxg/stem_model.rds",
+        "visuals/mxg_stem_model/stem_count_boxplot.png",
+        "visuals/mxg_stem_model/stem_count_boxplot.tiff",
+        "data/internal/mxg/segment_rel_linear_density_stats.csv",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.png",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.png",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff",
+        "data/internal/mxg/segment_rel_linear_density_stats.csv",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff",
+        "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
+        "data/internal/mxg/final_linear_regression_inferences.csv",
+        "visuals/cutting_height/obs_boxplot.png",
+        "visuals/cutting_height/obs_boxplot.tiff",
+        "visuals/cutting_height/obs_field_boxplot.png",
+        "visuals/cutting_height/obs_field_boxplot.tiff",
+        "data/internal/weather/serf_weather_climo_stats.csv",
+        "visuals/weather/gdd_2020.png",
+        "visuals/weather/gdd_2020.tiff",
+        "visuals/weather/precip_2020.png",
+        "visuals/weather/precip_2020.tiff"
+
 
 rule read_mxg_stem:
     input: 
-        script = "code/read_mxg_stem.R"
+        script = "code/read_mxg_stem.R",
+        data = "data/external/cutting_height_experiment_obs.xlsx"
     output:
-        "data/derived/serf_segment_data.csv"
+        "data/internal/mxg/serf_segment_data.csv"
     shell:
         """
-        {input.script}
+        Rscript {input.script}
         """
 
-rule model_mxg_stem_partition:
+rule model_mxg_stem_linear_density:
     input:
-        script = "code/model_mxg_stem_partition.R",
-        data = "data/derived/serf_segment_data.csv"
+        script = "code/model_mxg_stem_linear_density.R",
+        data = "data/internal/mxg/serf_segment_data.csv"
     output:
-        "data/derived/mxg_stem_model.rds",
-        "visuals/stem_count_boxplot.png",
-        "visuals/stem_count_boxplot.tiff",
-        "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.png",
-        "visuals/stem_cumulative_mass_fraction_vs_segment_nrate_factor.tiff",
-        "visuals/stem_cumulative_mass_fraction_vs_segment.png",
-        "visuals/stem_cumulative_mass_fraction_vs_segment.tiff",
-        "visuals/stem_cumulative_mass_vs_segment_nrate_factor.png",
-        "visuals/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
-        "visuals/stem_mass_fraction_vs_segment_nrate_factor.png",
-        "visuals/stem_mass_fraction_vs_segment_nrate_factor.tiff",
-        "visuals/stem_mass_fraction_vs_segment.png",
-        "visuals/stem_mass_fraction_vs_segment.tiff",
-        "visuals/stem_mass_vs_segment_nrate_factor.png",
-        "visuals/stem_mass_vs_segment_nrate_factor.tiff",
-        "visuals/stem_cumulative_mass_vs_segment.png",
-        "visuals/stem_cumulative_mass_vs_segment.tiff"
+        "data/internal/mxg/stem_model.rds",
+        "visuals/mxg_stem_model/stem_count_boxplot.png",
+        "visuals/mxg_stem_model/stem_count_boxplot.tiff",
+        "data/internal/mxg/segment_linear_density_stats.csv",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.png",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.png",
+        "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff",
+        "data/internal/mxg/segment_rel_linear_density_stats.csv",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff",
+        "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.png",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.png",
+        "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png",
+        "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
+        "data/internal/mxg/final_linear_regression_inferences.csv"
     shell:
         """
-        {input.script}
+        Rscript {input.script}
         """
 
 rule plot_cutting_height:
     input:
         script = "code/plot_mxg_cutting_height.R",
-        data = "data/raw/cutting_height_obs.csv"
+        data = "data/external/cutting_height_obs.csv"
     output:
-        "visuals/cutting_height_obs_field.png",
-        "visuals/cutting_height_obs_field.tiff",
-        "visuals/cutting_height_obs.png",
-        "visuals/cutting_height_obs.tiff"
+        "visuals/cutting_height/obs_boxplot.png",
+        "visuals/cutting_height/obs_boxplot.tiff",
+        "visuals/cutting_height/obs_field_boxplot.png",
+        "visuals/cutting_height/obs_field_boxplot.tiff"
     shell:
         """
-        {input.script}
+        Rscript {input.script}
         """
 
-rule plot_cutting_height_carbon:
+rule plot_weather_data:
     input:
-        script = "code/plot_cutting_height_carbon.R",
-        model = "data/derived/mxg_stem_model.rds",
-        data = "data/raw/cutting_height_obs.csv"
+        script = "code/plot_weather_data.R",
+        data1 = "data/external/weather/columbus_junct_data.txt",
+        data2 = "data/external/weather/serf_sm_mesonet.txt"
     output:
-        "visuals/cutting_height_carbon.png",
-        "visuals/cutting_height_carbon.tiff"
+        "data/internal/weather/serf_weather_climo_stats.csv",
+        "visuals/weather/gdd_2020.png",
+        "visuals/weather/gdd_2020.tiff",
+        "visuals/weather/precip_2020.png",
+        "visuals/weather/precip_2020.tiff"
     shell:
         """
-        {input.script}
+        Rscript {input.script}
         """

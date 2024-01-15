@@ -1,7 +1,7 @@
-# model_mxg_stem_partition.R
+# model_mxg_stem_linear_density.R
 # By: Bryan Petersen
 # Date: 2024-01-13
-# Purpose: Model the stem mass partitioning in miscanthus using the data from SERF
+# Purpose: Model the stem linear density in miscanthus using the data from SERF
 # Input: data/internal/mxg/serf_segment_data.csv
 # Output: data/internal/mxg/stem_model.rds
 #         visuals/mxg_stem_model/stem_count_boxplot.png
@@ -29,7 +29,6 @@
 #         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png
 #         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff
 #         data/internal/mxg/final_linear_regression_inferences.csv
-#         data/internal/mxg/prds_cumulative.csv
 
 # Install nlraa if not installed in the current library
 if (!require("nlraa")){install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")}

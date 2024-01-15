@@ -3,7 +3,7 @@
 # Date: 2024-01-13
 # Purpose: Plot the weather data for the 2020 growing season at the Southeast Research Farm (SERF) against the climatology
 # Input: data/external/weather/columbus_junct_data.txt
-#        data/raw/weather/serf_sm_mesonet.txt
+#        data/external/weather/serf_sm_mesonet.txt
 # Output: data/internal/weather/serf_weather_climo_stats.csv
 #         visuals/weather/gdd_2020.png
 #         visuals/weather/gdd_2020.tiff

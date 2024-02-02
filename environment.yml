@@ -9,6 +9,6 @@ dependencies:
   - r-tidyverse=2.0.0
   - r-rstatix=0.7.2
   - r-nlme=3.1_162
-  - r-emmeans=1.8.7
   - r-ggpubr=0.6.0
+  - r-ggresidpanel=0.3.0
   - snakemake=7.30.2

@@ -91,6 +91,10 @@ rule plot_cutting_height:
     output:
         "visuals/cutting_height/obs_boxplot.png",
         "visuals/cutting_height/obs_boxplot.tiff",
+        "visuals/cutting_height/obs_baled_boxplot.png",
+        "visuals/cutting_height/obs_baled_boxplot.tiff",
+        "visuals/cutting_height/obs_resid_panel.png",
+        "visuals/cutting_height/obs_resid_panel.tiff",
         "visuals/cutting_height/obs_field_boxplot.png",
         "visuals/cutting_height/obs_field_boxplot.tiff"
     shell:

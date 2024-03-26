@@ -11,4 +11,6 @@ dependencies:
   - r-nlme=3.1_162
   - r-ggpubr=0.6.0
   - r-ggresidpanel=0.3.0
+  - r-patchwork=1.2.0
+  - r-emmeans=1.10.0
   - snakemake=7.30.2

@@ -191,7 +191,6 @@ p1 <- ggplot(serf_weather_climo, aes(x = valid)) +
     theme(legend.position = c(0.2, 0.8))
 
 # Save the plot
-ggsave("visuals/weather/gdd_2020.png", p1, width = 6, height = 4, dpi = 300)
 ggsave("visuals/weather/gdd_2020.tiff", p1, width = 6, height = 4, dpi = 300)
 
 
@@ -211,7 +210,6 @@ p2 <- ggplot(serf_weather_climo, aes(x = valid)) +
     theme(legend.position = c(0.2, 0.8))
 
 # Save the plot
-ggsave("visuals/weather/precip_2020.png", p2, width = 6, height = 4, dpi = 300)
 ggsave("visuals/weather/precip_2020.tiff", p2, width = 6, height = 4, dpi = 300)
 
 

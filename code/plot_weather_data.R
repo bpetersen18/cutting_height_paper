@@ -5,9 +5,7 @@
 # Input: data/external/weather/columbus_junct_data.txt
 #        data/external/weather/serf_sm_mesonet.txt
 # Output: data/internal/weather/serf_weather_climo_stats.csv
-#         visuals/weather/gdd_2020.png
 #         visuals/weather/gdd_2020.tiff
-#         visuals/weather/precip_2020.png
 #         visuals/weather/precip_2020.tiff
 
 # Load libraries

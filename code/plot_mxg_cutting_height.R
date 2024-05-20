@@ -3,18 +3,15 @@
 # Date: 2024-01-14
 # Purpose: Plot the cutting height from observations at the commercial fields in April 2021
 # Input: data/external/cutting_height_obs.csv
-# Output: visuals/cutting_height/obs_boxplot.png
-#         visuals/cutting_height/obs_boxplot.tiff
-#         visuals/cutting_height/obs_resid_panel.png
+# Output: visuals/cutting_height/obs_boxplot.tiff
 #         visuals/cutting_height/obs_resid_panel.tiff
-#         visuals/cutting_height/obs_baled_boxplot.png
 #         visuals/cutting_height/obs_baled_boxplot.tiff
-#         visuals/cutting_height/obs_field_boxplot.png
 #         visuals/cutting_height/obs_field_boxplot.tiff
 
 # Load libraries
 library(tidyverse)
 library(ggResidpanel)
+library(patchwork)
 
 # Create the visuals/cutting_height directory if it doesn't exist
 dir.create("visuals/cutting_height", showWarnings = FALSE, recursive = TRUE)
@@ -27,7 +24,7 @@ data_tbl <- read_csv(file = "data/external/cutting_height_obs.csv") %>%
 p1 <- data_tbl %>%
     ggplot(aes(x = "", y = stem_height)) +
     geom_boxplot(outlier.shape = NA) +
-    geom_jitter(size = 2) +
+    geom_jitter(size = 2, width = 0.2, height = 0, color = "darkgrey", alpha = 0.8) +
     labs(x = NULL, y = "Cutting height, cm") +
     theme_bw() +
     theme(axis.text.x = element_blank(),
@@ -36,7 +33,6 @@ p1 <- data_tbl %>%
           axis.text.y = element_text(size = 12, face = "bold"))
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height/obs_boxplot.png", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
 ggsave(filename = "visuals/cutting_height/obs_boxplot.tiff", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
 
 # Fit linear model to the data
@@ -46,13 +42,11 @@ stubble_height_mod <- lm(stem_height ~ baled, data = data_tbl)
 p2 <- resid_panel(stubble_height_mod)
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height/obs_resid_panel.png", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
 ggsave(filename = "visuals/cutting_height/obs_resid_panel.tiff", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
-
 
 significance_tbl <- data_tbl %>% 
     t.test(stem_height ~ baled, data = .) %>% 
-    tidy()
+    broom::tidy()
 
 # Plot the cutting height with a boxplot for the baled and not baled sections
 p3 <- data_tbl %>%
@@ -68,7 +62,6 @@ p3 <- data_tbl %>%
           axis.title = element_text(size = 14, face = "bold"))
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height/obs_baled_boxplot.png", plot = p3, width = 8, height = 8, units = "in", dpi = 300)
 ggsave(filename = "visuals/cutting_height/obs_baled_boxplot.tiff", plot = p3, width = 8, height = 8, units = "in", dpi = 300)
 
 
@@ -92,5 +85,10 @@ p4 <- data_tbl %>%
           axis.title = element_text(size = 14, face = "bold"))
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height/obs_field_boxplot.png", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
 ggsave(filename = "visuals/cutting_height/obs_field_boxplot.tiff", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
+
+# Combine the single boxplot and baled/not baled boxplot
+composite_plot <- p1 | p3 + plot_annotation(tag_levels = "a") + plot_layout(axes = "collect_y")
+
+
+

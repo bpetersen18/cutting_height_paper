@@ -4,29 +4,18 @@
 # Purpose: Model the stem linear density in miscanthus using the data from SERF
 # Input: data/internal/mxg/serf_segment_data.csv
 # Output: data/internal/mxg/stem_model.rds
-#         visuals/mxg_stem_model/stem_count_boxplot.png
 #         visuals/mxg_stem_model/stem_count_boxplot.tiff
 #         data/internal/mxg/segment_linear_density_stats.csv
-#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.png
 #         visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff
-#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.png
 #         visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff
 #         data/internal/mxg/segment_rel_linear_density_stats.csv
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.png
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.png
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff
-#         visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.png
 #         visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff
-#         visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.png
 #         visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.png
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff
-#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.png
 #         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.png
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff
-#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png
 #         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff
 #         data/internal/mxg/final_linear_regression_inferences.csv
 
@@ -74,8 +63,6 @@ p1 <- ggplot(data = stem_count, aes(x = nrate_factor, y = stem_count)) +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_count_boxplot.png",
-       height = 8, width = 8, units = "in")
 ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_count_boxplot.tiff",
        height = 8, width = 8, units = "in")
 
@@ -122,7 +109,6 @@ write_csv(segment_linear_density_stats, file = "data/internal/mxg/segment_linear
 bxp <- ggboxplot(segment_linear_density_tbl, x = "nrate_factor", y = "segment_linear_density", ylab = "Stem Linear Density, g/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
 ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
@@ -143,7 +129,6 @@ segment_linear_density_tbl %>%
 qqp <- ggqqplot(segment_linear_density_tbl, x = "segment_linear_density", facet.by = "nrate_factor")
 
 # Save plot
-ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
 ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
 
 # The qqplot looks okay to assume normality. Therefore, we'll assume normality
@@ -184,7 +169,6 @@ write_csv(segment_rel_linear_density_tbl_stats, file = "data/internal/mxg/segmen
 bxp <- ggboxplot(segment_rel_linear_density_tbl, x = "nrate_factor", y = "segment_rel_linear_density", ylab = "Relative Stem Linear Density, %/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.png", height = 8, width = 8, units = "in")
 ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
@@ -206,7 +190,6 @@ qqp <- ggqqplot(segment_rel_linear_density_tbl, x = "segment_rel_linear_density"
 # The qqplot looks okay to assume normality. There are two outliers in the 0 N rate data that appear to be driving the non-normality in the Shapiro test. We will assume normality for now. We will remove the outliers and see how it affects the mixed linear model later in the script.
 
 # Save plot
-ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.png", height = 8, width = 8, units = "in")
 ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
 
 # Check the equality of variances
@@ -259,8 +242,7 @@ p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill =
           legend.text = element_text(face = "bold", size = 16),
           legend.title = element_text(face = "bold", size = 16),
           legend.position = c(0.8, 0.8))
-ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.png",
-       height = 8, width = 8, units = "in")
+
 ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
@@ -293,8 +275,6 @@ p2 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p2, filename = "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.png",
-       height = 8, width = 8, units = "in")
 ggsave(plot = p2, filename = "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
@@ -333,8 +313,6 @@ p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_facto
           legend.position = c(0.8, 0.8))
 
 # Save plot
-ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.png",
-       height = 8, width = 8, units = "in")
 ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
@@ -359,8 +337,6 @@ p4 <- serf_segment_data_prds %>%
           legend.title = element_text(face = "bold"))
 
 # Save plot
-ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.png",
-       height = 8, width = 8, units = "in")
 ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
@@ -421,8 +397,6 @@ p5 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p5, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.png",
-       height = 8, width = 8, units = "in")
 ggsave(plot = p5, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff",
        height = 8, width = 8, units = "in")
 
@@ -448,7 +422,5 @@ p6 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.png",
-       height = 8, width = 8, units = "in")
 ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
          height = 8, width = 8, units = "in")

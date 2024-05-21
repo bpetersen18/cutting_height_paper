@@ -18,6 +18,7 @@
 #         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff
 #         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff
 #         data/internal/mxg/final_linear_regression_inferences.csv
+#         data/internal/mxg/model_params.csv
 
 # Install nlraa if not installed in the current library
 if (!require("nlraa")){install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")}
@@ -29,6 +30,7 @@ library(nlraa)
 library(nlme)
 library(emmeans)
 library(ggpubr)
+library(performance)
 
 # Create the "visuals/mxg_stem_model" directory if it doesn't exist
 dir.create("visuals/mxg_stem_model", showWarnings = FALSE, recursive = TRUE)
@@ -67,7 +69,7 @@ ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_count_boxplot.tiff",
        height = 8, width = 8, units = "in")
 
 # Are there outliers
-stem_count %>% 
+stem_count_outliers_tbl <- stem_count %>% 
     group_by(nrate_factor) %>% 
     identify_outliers(stem_count)
 
@@ -83,7 +85,7 @@ levene_test_results <- stem_count %>%
 stat_test <- stem_count %>% 
     t_test(stem_count ~ nrate_factor, var.equal = TRUE) %>% 
     add_significance()
-stat_test
+
 
 # Student t-test suggests stem count is not different under the two different nitrogen rates
 
@@ -106,44 +108,43 @@ segment_linear_density_stats <- segment_linear_density_tbl %>%
 write_csv(segment_linear_density_stats, file = "data/internal/mxg/segment_linear_density_stats.csv")
 
 # Visualize the data using boxplots
-bxp <- ggboxplot(segment_linear_density_tbl, x = "nrate_factor", y = "segment_linear_density", ylab = "Stem Linear Density, g/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
+ald_bxp <- ggboxplot(segment_linear_density_tbl, x = "nrate_factor", y = "segment_linear_density", ylab = "Stem Linear Density, g/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
+ggsave(plot = ald_bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
-segment_linear_density_tbl %>% 
+ald_outliers_tbl <- segment_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
     identify_outliers(segment_linear_density)
 
 # There are no extreme outliers
 
 # Check normality by groups
-segment_linear_density_tbl %>% 
+ald_normality_tbl <- segment_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
     shapiro_test(segment_linear_density)
 
 # The shapiro test suggests the O N rate data is not normal
 
 # Plot qqplot
-qqp <- ggqqplot(segment_linear_density_tbl, x = "segment_linear_density", facet.by = "nrate_factor")
+ald_qqp <- ggqqplot(segment_linear_density_tbl, x = "segment_linear_density", facet.by = "nrate_factor")
 
 # Save plot
-ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
+ggsave(plot = ald_qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
 
 # The qqplot looks okay to assume normality. Therefore, we'll assume normality
 
 # Check the equality of variances
-levene_test_results <- segment_linear_density_tbl %>% 
+ald_levene_test_results <- segment_linear_density_tbl %>% 
     levene_test(segment_linear_density ~ nrate_factor)
 
 # Levene's test suggests the variances are equal
 
 # Compute t-test
-stat_test <- segment_linear_density_tbl %>% 
+ald_stat_test <- segment_linear_density_tbl %>% 
     t_test(segment_linear_density ~ nrate_factor, var.equal = TRUE) %>% 
     add_significance()
-stat_test
 
 # Student t-test suggests segment linear density is different under the two different nitrogen rates
 
@@ -166,43 +167,42 @@ segment_rel_linear_density_tbl_stats <- segment_rel_linear_density_tbl %>%
 write_csv(segment_rel_linear_density_tbl_stats, file = "data/internal/mxg/segment_rel_linear_density_stats.csv")
 
 # Visualize the data using boxplots
-bxp <- ggboxplot(segment_rel_linear_density_tbl, x = "nrate_factor", y = "segment_rel_linear_density", ylab = "Relative Stem Linear Density, %/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
+rld_bxp <- ggboxplot(segment_rel_linear_density_tbl, x = "nrate_factor", y = "segment_rel_linear_density", ylab = "Relative Stem Linear Density, %/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
+ggsave(plot = rld_bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
-segment_rel_linear_density_tbl %>% 
+rld_outliers_tbl <- segment_rel_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
     identify_outliers(segment_rel_linear_density)
 
 # There are no extreme outliers
 
 # Check normality by groups
-segment_rel_linear_density_tbl %>% 
+rld_normality_tbl <- segment_rel_linear_density_tbl %>% 
     group_by(nrate_factor) %>% 
     shapiro_test(segment_rel_linear_density)
 
 # The shapiro test suggests the O N rate data is not normal
 
-qqp <- ggqqplot(segment_rel_linear_density_tbl, x = "segment_rel_linear_density", facet.by = "nrate_factor")
+rld_qqp <- ggqqplot(segment_rel_linear_density_tbl, x = "segment_rel_linear_density", facet.by = "nrate_factor")
 
 # The qqplot looks okay to assume normality. There are two outliers in the 0 N rate data that appear to be driving the non-normality in the Shapiro test. We will assume normality for now. We will remove the outliers and see how it affects the mixed linear model later in the script.
 
 # Save plot
-ggsave(plot = qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
+ggsave(plot = rld_qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
 
 # Check the equality of variances
-levene_test_results <- segment_rel_linear_density_tbl %>% 
+rld_levene_test_results <- segment_rel_linear_density_tbl %>% 
     levene_test(segment_rel_linear_density ~ nrate_factor)
 
 # Levene's test suggests the variances are equal
 
 # Compute t-test
-stat_test <- segment_rel_linear_density_tbl %>% 
+rld_stat_test <- segment_rel_linear_density_tbl %>% 
     t_test(segment_rel_linear_density ~ nrate_factor, var.equal = TRUE) %>% 
     add_significance()
-stat_test
 
 # Student t-test suggests segment linear density is different under the two different nitrogen rates
 
@@ -221,20 +221,48 @@ m1_abs <- lme(segment_linear_density ~ segment * nrate_factor,
               data = serf_segment_data,
               random = ~ 1 | block)
 
-# Test null hypothesis that the stem linear density distribution does
-# not change for different nitrogen rates
+# Test null hypothesis that there is no interaction between segment and nitrogen rate
 anova(m1_abs, type = "sequential")
 
-# Anova indicates there is evidence against the null hypothesis
+# Anova indicates there is no evidence against the null hypothesis
+
+# Remove the interaction term from the model
+m1_abs <- lme(segment_linear_density ~ segment + nrate_factor,
+              data = serf_segment_data,
+              random = ~ 1 | block)
+
+# Calculate the adjusted R^2 using performance package
+m1_abs_r2 <- r2_nakagawa(m1_abs)
+
+# Get the fix effects table
+m1_abs_effects <- summary(m1_abs)$tTable
+m1_abs_slope <- round(m1_abs_effects[2, 1], 3)
+m1_abs_intercept <- round(m1_abs_effects[1, 1], 3)
+m1_abs_nrate_effect <- round(m1_abs_effects[3, 1], 3)
 
 # Plot model with data
 abs_prds <- predict_lme(m1_abs, interval = "conf")
 abs_data_prds <- serf_segment_data %>% bind_cols(abs_prds)
 
+# Get the 95% confidence interval for the slope and intercepts
+m1_abs_ci <- intervals(m1_abs, level = 0.95)
+
+# Tidy up the confidence intervals
+model_params_tbl <- m1_abs_ci$fixed %>% 
+    as_tibble(rownames = "term") %>% 
+    mutate(model = "ald")
+
 p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill = nrate_factor)) +
     geom_point(aes(y = segment_linear_density)) +
     geom_line(aes(y = Estimate)) +
     geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5, color = NULL), alpha = 0.3) +
+    # Add r-squared to the plot and equation
+    annotate("text", x = 6.1, y = max(abs_data_prds$segment_linear_density)-0.05, 
+             label = bquote("R"^2 == .(round(as.numeric(m1_abs_r2[["R2_conditional"]]), 3))), size = 6) +
+    annotate("text", x = 18, y = max(abs_data_prds$segment_linear_density)-0.01,
+             label = bquote("y = " ~ .(m1_abs_slope) ~ "x + " ~ .(m1_abs_intercept) ~ "for non-fertilized"), size = 6) +
+    annotate("text", x = 15.6, y = max(abs_data_prds$segment_linear_density)-0.03,
+             label = bquote("y = " ~ .(m1_abs_slope) ~ "x +" ~ .(m1_abs_nrate_effect + m1_abs_intercept) ~ "for fertilized"), size = 6) +
     labs(x = "Stem Segment, cm", y = bquote(bold("Stem Linear Density, " ~g%.%cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold", size = 16),
@@ -290,11 +318,36 @@ m1_rel  <- lme(segment_rel_linear_density ~ segment * nrate_factor,
            data = serf_segment_data,
            random = ~ 1 | block)
 
-# Test null hypothesis that the relative mass distribution does
-# not change for different nitrogen rates
+# Test null hypothesis that there is no interaction between segment and nitrogen rate
 anova(m1_rel, type = "sequential")
 
-# Anova indicates there is evidence against the null hypothesis
+# Anova indicates there is no evidence against the null hypothesis
+
+# Remove the interaction term from the model
+m1_rel <- lme(segment_rel_linear_density ~ segment + nrate_factor,
+           data = serf_segment_data,
+           random = ~ 1 | block)
+
+# Calculate the adjusted R^2 using performance package
+m1_rel_r2 <- r2_nakagawa(m1_rel)
+
+# Get the fix effects table
+m1_rel_effects <- summary(m1_rel)$tTable
+m1_rel_slope <- round(m1_rel_effects[2, 1], 3)
+m1_rel_intercept <- round(m1_rel_effects[1, 1], 3)
+m1_rel_nrate_effect <- round(m1_rel_effects[3, 1], 3)
+
+# Get the 95% confidence interval for the slope and intercepts
+m1_rel_ci <- intervals(m1_rel, level = 0.95)
+
+# Tidy up the confidence intervals
+model_params_tbl <- m1_rel_ci$fixed %>% 
+    as_tibble(rownames = "term") %>% 
+    mutate(model = "rld") %>% 
+    bind_rows(model_params_tbl)
+
+# Write to file
+write_csv(model_params_tbl, file = "data/internal/mxg/model_params.csv")
 
 # Plot model with data
 prds <- predict_lme(m1_rel, interval = "conf")
@@ -304,6 +357,13 @@ p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_facto
     geom_point(aes(y = segment_rel_linear_density)) +
     geom_line(aes(y = Estimate)) +
     geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5, color = NULL), alpha = 0.3) +
+    # Add r-squared to the plot and equation
+    annotate("text", x = 9, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.05, 
+             label = bquote("R"^2 == .(round(as.numeric(m1_rel_r2[["R2_conditional"]]), 3))), size = 6) +
+    annotate("text", x = 20, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.01,
+             label = bquote("y = " ~ .(m1_rel_slope) ~ "x + " ~ .(m1_rel_intercept) ~ "for non-fertilized"), size = 6) +
+    annotate("text", x = 18, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.03,
+             label = bquote("y = " ~ .(m1_rel_slope) ~ "x +" ~ .(m1_rel_nrate_effect + m1_rel_intercept) ~ "for fertilized"), size = 6) +
     labs(x = "Stem Segment, cm", y = bquote(bold("Relative Stem Linear Density, %" ~"\u00B7"~ cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold", size = 16),

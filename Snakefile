@@ -19,7 +19,8 @@ rule targets:
         "visuals/cutting_height/obs_field_boxplot.tiff",
         "data/internal/weather/serf_weather_climo_stats.csv",
         "visuals/weather/gdd_2020.tiff",
-        "visuals/weather/precip_2020.tiff"
+        "visuals/weather/precip_2020.tiff",
+        "data/internal/mxg/model_params.csv"
 
 
 rule read_mxg_stem:
@@ -52,7 +53,8 @@ rule model_mxg_stem_linear_density:
         "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff",
         "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff",
         "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
-        "data/internal/mxg/final_linear_regression_inferences.csv"
+        "data/internal/mxg/final_linear_regression_inferences.csv",
+        "data/internal/mxg/model_params.csv"
     shell:
         """
         Rscript {input.script}

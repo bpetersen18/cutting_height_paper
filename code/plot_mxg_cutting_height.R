@@ -88,7 +88,12 @@ p4 <- data_tbl %>%
 ggsave(filename = "visuals/cutting_height/obs_field_boxplot.tiff", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
 
 # Combine the single boxplot and baled/not baled boxplot
-composite_plot <- p1 | p3 + plot_annotation(tag_levels = "a") + plot_layout(axes = "collect_y")
+composite_plot <- p1 + p3 + plot_annotation(tag_levels = "A") + plot_layout(axes = "collect") & 
+    theme(plot.tag = element_text(size = 12, face = "bold"))
+
+# Save the composite plot
+ggsave(filename = "visuals/cutting_height/obs_composite.jpg", plot = composite_plot, width = 8, height = 8, units = "in", dpi = 300)
+
 
 
 

@@ -236,9 +236,9 @@ m1_abs_r2 <- r2_nakagawa(m1_abs)
 
 # Get the fix effects table
 m1_abs_effects <- summary(m1_abs)$tTable
-m1_abs_slope <- round(m1_abs_effects[2, 1], 3)
-m1_abs_intercept <- round(m1_abs_effects[1, 1], 3)
-m1_abs_nrate_effect <- round(m1_abs_effects[3, 1], 3)
+m1_abs_slope <- signif(m1_abs_effects[2, 1], 2)
+m1_abs_intercept <- signif(m1_abs_effects[1, 1], 2)
+m1_abs_nrate_effect <- signif(m1_abs_effects[3, 1], 2)
 
 # Plot model with data
 abs_prds <- predict_lme(m1_abs, interval = "conf")
@@ -257,12 +257,12 @@ p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill =
     geom_line(aes(y = Estimate)) +
     geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5, color = NULL), alpha = 0.3) +
     # Add r-squared to the plot and equation
-    annotate("text", x = 6.1, y = max(abs_data_prds$segment_linear_density)-0.05, 
+    annotate("text", x = 6.5, y = max(abs_data_prds$segment_linear_density)-0.09, 
              label = bquote("R"^2 == .(round(as.numeric(m1_abs_r2[["R2_conditional"]]), 3))), size = 6) +
-    annotate("text", x = 18, y = max(abs_data_prds$segment_linear_density)-0.01,
-             label = bquote("y = " ~ .(m1_abs_slope) ~ "x + " ~ .(m1_abs_intercept) ~ "for non-fertilized"), size = 6) +
-    annotate("text", x = 15.6, y = max(abs_data_prds$segment_linear_density)-0.03,
-             label = bquote("y = " ~ .(m1_abs_slope) ~ "x +" ~ .(m1_abs_nrate_effect + m1_abs_intercept) ~ "for fertilized"), size = 6) +
+    annotate("text", x = 12, y = max(abs_data_prds$segment_linear_density)-0.01,
+             label = bquote(y[N[0]] == .(m1_abs_slope) ~ x + ~ .(m1_abs_intercept)), size = 6) +
+    annotate("text", x = 12, y = max(abs_data_prds$segment_linear_density)-0.05,
+             label = bquote(y[N[224]] == .(m1_abs_slope) ~ x + ~ .(signif(m1_abs_nrate_effect + m1_abs_intercept, 2))), size = 6) +
     labs(x = "Stem Segment, cm", y = bquote(bold("Stem Linear Density, " ~g%.%cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold", size = 16),
@@ -271,7 +271,7 @@ p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill =
           legend.title = element_text(face = "bold", size = 16),
           legend.position = c(0.8, 0.8))
 
-ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff",
+ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.jpg",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative stem mass
@@ -333,9 +333,9 @@ m1_rel_r2 <- r2_nakagawa(m1_rel)
 
 # Get the fix effects table
 m1_rel_effects <- summary(m1_rel)$tTable
-m1_rel_slope <- round(m1_rel_effects[2, 1], 3)
-m1_rel_intercept <- round(m1_rel_effects[1, 1], 3)
-m1_rel_nrate_effect <- round(m1_rel_effects[3, 1], 3)
+m1_rel_slope <- signif(m1_rel_effects[2, 1], 2)
+m1_rel_intercept <- signif(m1_rel_effects[1, 1], 2)
+m1_rel_nrate_effect <- signif(m1_rel_effects[3, 1], 2)
 
 # Get the 95% confidence interval for the slope and intercepts
 m1_rel_ci <- intervals(m1_rel, level = 0.95)
@@ -358,12 +358,12 @@ p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_facto
     geom_line(aes(y = Estimate)) +
     geom_ribbon(aes(ymin = Q2.5, ymax = Q97.5, color = NULL), alpha = 0.3) +
     # Add r-squared to the plot and equation
-    annotate("text", x = 9, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.05, 
-             label = bquote("R"^2 == .(round(as.numeric(m1_rel_r2[["R2_conditional"]]), 3))), size = 6) +
-    annotate("text", x = 20, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.01,
-             label = bquote("y = " ~ .(m1_rel_slope) ~ "x + " ~ .(m1_rel_intercept) ~ "for non-fertilized"), size = 6) +
-    annotate("text", x = 18, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.03,
-             label = bquote("y = " ~ .(m1_rel_slope) ~ "x +" ~ .(m1_rel_nrate_effect + m1_rel_intercept) ~ "for fertilized"), size = 6) +
+    annotate("text", x = 11, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.09, 
+             label = bquote(R^2 == .(round(as.numeric(m1_rel_r2[["R2_conditional"]]), 3))), size = 6) +
+    annotate("text", x = 15, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.01,
+             label = bquote(y[N[0]] ==  .(m1_rel_slope)~ x + ~ .(m1_rel_intercept)), size = 6) +
+    annotate("text", x = 15, y = max(serf_segment_data_prds$segment_rel_linear_density)-0.05,
+             label = bquote(y[N[224]] == .(m1_rel_slope) ~ x + ~ .(signif(m1_rel_nrate_effect + m1_rel_intercept, 2))), size = 6) +
     labs(x = "Stem Segment, cm", y = bquote(bold("Relative Stem Linear Density, %" ~"\u00B7"~ cm^-1)), color = bquote(bold("Nitrogen, " ~kg%.%ha^-1)), fill = bquote(bold("Nitrogen, " ~kg%.%ha^-1))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold", size = 16),
@@ -373,7 +373,7 @@ p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_facto
           legend.position = c(0.8, 0.8))
 
 # Save plot
-ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff",
+ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.jpg",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative mass percent
@@ -482,5 +482,5 @@ p6 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
+ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.jpg",
          height = 8, width = 8, units = "in")

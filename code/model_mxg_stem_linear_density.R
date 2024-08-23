@@ -397,7 +397,7 @@ p4 <- serf_segment_data_prds %>%
           legend.title = element_text(face = "bold"))
 
 # Save plot
-ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff",
+ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.jpg",
        height = 8, width = 8, units = "in")
 
 # Even though there is evidence against the null hypothesis that the relative

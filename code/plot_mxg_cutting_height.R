@@ -49,6 +49,9 @@ significance_tbl <- data_tbl %>%
     t.test(stem_height ~ baled, data = .) %>% 
     broom::tidy()
 
+# Calculate the median cutting height across all observations
+median_cutting_height <- median(data_tbl$stem_height)
+
 # Plot the cutting height with a boxplot for the baled and not baled sections
 p3 <- data_tbl %>%
     mutate(baled = factor(baled, levels = c("Not baled", "Baled"))) %>%
@@ -57,6 +60,7 @@ p3 <- data_tbl %>%
     geom_jitter(size = 2, width = 0.2, height = 0, color = "darkgrey", alpha = 0.8) +
     geom_segment(x = 1, xend = 2, y = 49.5, yend = 49.5) +
     geom_text(x = 1.5, y = 50, label = "*", size = 8) +
+    geom_hline(yintercept = median_cutting_height, linetype = "dashed", color = "red") +
     labs(x = NULL, y = "Cutting height, cm") +
     theme_bw() +
     theme(axis.text = element_text(size = 12, face = "bold"),
@@ -64,7 +68,6 @@ p3 <- data_tbl %>%
 
 # Save the plot
 ggsave(filename = "visuals/cutting_height/obs_baled_boxplot.jpg", plot = p3, width = 8, height = 8, units = "in", dpi = 300)
-
 
 
 # Create pretty labels for the fields
@@ -94,7 +97,3 @@ composite_plot <- p1 + p3 + plot_annotation(tag_levels = "A") + plot_layout(axes
 
 # Save the composite plot
 ggsave(filename = "visuals/cutting_height/obs_composite.jpg", plot = composite_plot, width = 8, height = 8, units = "in", dpi = 300)
-
-
-
-

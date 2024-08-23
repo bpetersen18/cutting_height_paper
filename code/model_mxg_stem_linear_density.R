@@ -474,8 +474,9 @@ p6 <- ggplot() +
     geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_percent)) +
     geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass)) +
     geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound, ymax = cumulative_upper_bound), alpha = 0.3) +
-    labs(x = "Stem Segment, cm", y = "Cumulative Stem Mass Percent") +
-    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_percent)), by = 5)) +
+    labs(x = "Stem Segment, cm", y = "Percent of Stem Mass Not Harvested") +
+    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_percent)), by = 5),
+                       sec.axis = sec_axis(~.*.18, name = bquote(bold("Standing Biomass Not Harvested, " ~Mg%.%ha^-1)))) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold"),
           axis.text = element_text(face = "bold"),

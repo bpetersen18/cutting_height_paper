@@ -2,7 +2,11 @@
 # By: Bryan Petersen
 # Date: 2024-08-23
 # Purpose: Calculate various statistics for the stem mass data
-# Input: data/internal/mxg/serf_segment_data.csv
+# Input: 
+# 1. data/internal/mxg/serf_segment_data.csv
+
+# Output: 
+# 1. data/interal/mxg/stem_mass_stats.csv
 
 # Load libraries
 library(tidyverse)
@@ -24,4 +28,8 @@ stem_mass_stats_tbl <- data_tbl %>%
                  names_to = "statistic",
                  values_to = "value")
 
-stem_mass_stats_tbl
+# Write to file
+stem_mass_stats_tbl %>% 
+    write_csv(file = "data/internal/mxg/stem_mass_stats.csv")
+
+

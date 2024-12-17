@@ -2,12 +2,12 @@
 # By: Bryan Petersen
 # Date: 2024-01-14
 # Purpose: Plot the cutting height from observations at the commercial fields in April 2021
-# Input: data/external/cutting_height_obs.csv
-# Output: visuals/cutting_height/obs_boxplot.jpg
-#         visuals/cutting_height/obs_resid_panel.jpg
-#         visuals/cutting_height/obs_baled_boxplot.jpg
-#         visuals/cutting_height/obs_field_boxplot.jpg
-#         visuals/cutting_height/obs_composite.jpg
+# Input: 
+# 1. data/external/cutting_height_obs.csv
+# Outputs: 
+# 1. visuals/cutting_height/obs_boxplot.tiff
+# 2. visuals/cutting_height/obs_resid_panel.tiff
+# 3. visuals/cutting_height/obs_baled_boxplot.tiff
 
 # Load libraries
 library(tidyverse)
@@ -34,7 +34,7 @@ p1 <- data_tbl %>%
           axis.text.y = element_text(size = 12, face = "bold"))
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height/obs_boxplot.jgp", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
+ggsave(filename = "visuals/cutting_height/obs_boxplot.tiff", plot = p1, width = 8, height = 8, units = "in", dpi = 300)
 
 # Fit linear model to the data
 stubble_height_mod <- lm(stem_height ~ baled, data = data_tbl)
@@ -43,7 +43,7 @@ stubble_height_mod <- lm(stem_height ~ baled, data = data_tbl)
 p2 <- resid_panel(stubble_height_mod)
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height/obs_resid_panel.jpg", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
+ggsave(filename = "visuals/cutting_height/obs_resid_panel.tiff", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
 
 significance_tbl <- data_tbl %>% 
     t.test(stem_height ~ baled, data = .) %>% 
@@ -67,33 +67,4 @@ p3 <- data_tbl %>%
           axis.title = element_text(size = 14, face = "bold"))
 
 # Save the plot
-ggsave(filename = "visuals/cutting_height/obs_baled_boxplot.jpg", plot = p3, width = 8, height = 8, units = "in", dpi = 300)
-
-
-# Create pretty labels for the fields
-pretty_labels <- c("dahlen" = "Dahlen",
-                   "freddies" = "Freddies",
-                   "solomon" = "Bell Trust",
-                   "ui_melrose" = "UofI Melrose")
-
-# Plot the cutting with a boxplot for each field
-p4 <- data_tbl %>%
-    mutate(field_name = factor(field_name)) %>% 
-    ggplot(aes(x = field_name, y = stem_height)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_jitter(size = 2) +
-    labs(x = "Field", y = "Cutting height, cm") +
-    scale_x_discrete(labels = pretty_labels) +
-    theme_bw() +
-    theme(axis.text = element_text(size = 12, face = "bold"),
-          axis.title = element_text(size = 14, face = "bold"))
-
-# Save the plot
-ggsave(filename = "visuals/cutting_height/obs_field_boxplot.jpg", plot = p2, width = 8, height = 8, units = "in", dpi = 300)
-
-# Combine the single boxplot and baled/not baled boxplot
-composite_plot <- p1 + p3 + plot_annotation(tag_levels = "A") + plot_layout(axes = "collect") & 
-    theme(plot.tag = element_text(size = 12, face = "bold"))
-
-# Save the composite plot
-ggsave(filename = "visuals/cutting_height/obs_composite.jpg", plot = composite_plot, width = 8, height = 8, units = "in", dpi = 300)
+ggsave(filename = "visuals/cutting_height/obs_baled_boxplot.tiff", plot = p3, width = 8, height = 8, units = "in", dpi = 300)

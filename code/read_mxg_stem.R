@@ -2,8 +2,11 @@
 # By: Bryan Petersen
 # Date: 2024-01-13
 # Purpose: Read in the mxg stem data and convert to a long dataframe
-# Input: data/external/cutting_height_experiment_obs.xlsx
-# Output: data/internal/mxg/serf_segment_data.csv
+# Input: 
+# 1. data/external/cutting_height_experiment_obs.xlsx
+
+# Output: 
+# 1. data/internal/mxg/serf_segment_data.csv
 
 # Load libraries
 library(tidyverse)

@@ -1,24 +1,30 @@
 # model_mxg_stem_linear_density.R
 # By: Bryan Petersen
 # Date: 2024-01-13
-# Purpose: Model the stem linear density in miscanthus using the data from SERF
-# Input: data/internal/mxg/serf_segment_data.csv
-# Output: data/internal/mxg/stem_model.rds
-#         visuals/mxg_stem_model/stem_count_boxplot.jpg
-#         data/internal/mxg/segment_linear_density_stats.csv
-#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.jpg
-#         visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.jpg
-#         data/internal/mxg/segment_rel_linear_density_stats.csv
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.jpg
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.jpg
-#         visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.jpg
-#         visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.jpg
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.jpg
-#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.jpg
-#         visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.jpg
-#         visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.jpg
-#         data/internal/mxg/final_linear_regression_inferences.csv
-#         data/internal/mxg/model_params.csv
+# Purpose: This script performs linear density modeling for Miscanthus x giganteus (Mxg) stems.
+# It generates various visualizations and statistical summaries related to stem linear density.
+
+# Inputs:
+# 1. data/internal/mxg/serf_segment_data.csv: CSV file containing segment data.
+
+# Outputs:
+# 1. visuals/mxg_stem_model/stem_count_boxplot.tiff: Boxplot of stem counts.
+# 2. data/internal/mxg/segment_linear_density_stats.csv: CSV file with segment linear density statistics.
+# 3. visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff: Boxplot of stem linear density vs nitrogen rate.
+# 4. visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff: QQ plot of stem linear density vs nitrogen rate.
+# 5. data/internal/mxg/segment_rel_linear_density_stats.csv: CSV file with segment relative linear density statistics.
+# 6. visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff: Boxplot of relative linear density vs nitrogen rate.
+# 7. visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff: QQ plot of relative linear density vs nitrogen rate.
+# 8. visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff: Plot of stem linear density vs segment nitrogen rate factor.
+# 9. visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff: Plot of stem cumulative mass vs segment nitrogen rate factor.
+# 10. visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff: Plot of relative linear density vs segment nitrogen rate factor.
+# 11. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff: Plot of cumulative mass percent vs segment nitrogen rate factor.
+# 12. visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff: Plot of relative linear density vs segment.
+# 13. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff: Plot of cumulative mass percent vs segment.
+# 14. data/internal/mxg/stem_model.rds: RDS file containing the stem model.
+# 15. data/internal/mxg/final_linear_regression_inferences.csv: CSV file with final linear regression inferences.
+# 16. data/internal/mxg/model_params.csv: CSV file with model parameters.
+# 17. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff: Plot of cumulative mass percent vs segment.
 
 # Install nlraa if not installed in the current library
 if (!require("nlraa")){install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")}
@@ -65,7 +71,7 @@ p1 <- ggplot(data = stem_count, aes(x = nrate_factor, y = stem_count)) +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_count_boxplot.jpg",
+ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_count_boxplot.tiff",
        height = 8, width = 8, units = "in")
 
 # Are there outliers
@@ -111,7 +117,7 @@ write_csv(segment_linear_density_stats, file = "data/internal/mxg/segment_linear
 ald_bxp <- ggboxplot(segment_linear_density_tbl, x = "nrate_factor", y = "segment_linear_density", ylab = "Stem Linear Density, g/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = ald_bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.jpg", height = 8, width = 8, units = "in")
+ggsave(plot = ald_bxp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
 ald_outliers_tbl <- segment_linear_density_tbl %>% 
@@ -131,7 +137,7 @@ ald_normality_tbl <- segment_linear_density_tbl %>%
 ald_qqp <- ggqqplot(segment_linear_density_tbl, x = "segment_linear_density", facet.by = "nrate_factor")
 
 # Save plot
-ggsave(plot = ald_qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.jpg", height = 8, width = 8, units = "in")
+ggsave(plot = ald_qqp, filename = "visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
 
 # The qqplot looks okay to assume normality. Therefore, we'll assume normality
 
@@ -170,7 +176,7 @@ write_csv(segment_rel_linear_density_tbl_stats, file = "data/internal/mxg/segmen
 rld_bxp <- ggboxplot(segment_rel_linear_density_tbl, x = "nrate_factor", y = "segment_rel_linear_density", ylab = "Relative Stem Linear Density, %/cm", xlab = "Nitrogen, kg/Ha", add = "jitter")
 
 # Save plot
-ggsave(plot = rld_bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.jpg", height = 8, width = 8, units = "in")
+ggsave(plot = rld_bxp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff", height = 8, width = 8, units = "in")
 
 # Are there outliers
 rld_outliers_tbl <- segment_rel_linear_density_tbl %>% 
@@ -191,7 +197,7 @@ rld_qqp <- ggqqplot(segment_rel_linear_density_tbl, x = "segment_rel_linear_dens
 # The qqplot looks okay to assume normality. There are two outliers in the 0 N rate data that appear to be driving the non-normality in the Shapiro test. We will assume normality for now. We will remove the outliers and see how it affects the mixed linear model later in the script.
 
 # Save plot
-ggsave(plot = rld_qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.jpg", height = 8, width = 8, units = "in")
+ggsave(plot = rld_qqp, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff", height = 8, width = 8, units = "in")
 
 # Check the equality of variances
 rld_levene_test_results <- segment_rel_linear_density_tbl %>% 
@@ -271,7 +277,7 @@ p1 <- ggplot(data = abs_data_prds, aes(x = segment, color = nrate_factor, fill =
           legend.title = element_text(face = "bold", size = 16),
           legend.position = c(0.8, 0.8))
 
-ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.jpg",
+ggsave(plot = p1, filename = "visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative stem mass
@@ -303,7 +309,7 @@ p2 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p2, filename = "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.jpg",
+ggsave(plot = p2, filename = "visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 
@@ -373,7 +379,7 @@ p3 <- ggplot(data = serf_segment_data_prds, aes(x = segment, color = nrate_facto
           legend.position = c(0.8, 0.8))
 
 # Save plot
-ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.jpg",
+ggsave(plot = p3, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative mass percent
@@ -397,7 +403,7 @@ p4 <- serf_segment_data_prds %>%
           legend.title = element_text(face = "bold"))
 
 # Save plot
-ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.jpg",
+ggsave(plot = p4, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff",
        height = 8, width = 8, units = "in")
 
 # Even though there is evidence against the null hypothesis that the relative
@@ -457,7 +463,7 @@ p5 <- ggplot() +
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p5, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.jpg",
+ggsave(plot = p5, filename = "visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff",
        height = 8, width = 8, units = "in")
 
 # Plot cumulative mass percent
@@ -474,14 +480,13 @@ p6 <- ggplot() +
     geom_point(data = serf_segment_data_cumulative, aes(x = segment, y = cumulative_segment_mass_percent)) +
     geom_line(data = prds_cumulative, aes(x = segment, y = cumulative_segment_mass)) +
     geom_ribbon(data = prds_cumulative, aes(x = segment, ymin = cumulative_lower_bound, ymax = cumulative_upper_bound), alpha = 0.3) +
-    labs(x = "Stem Segment, cm", y = "Percent of Stem Mass Not Harvested") +
-    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_percent)), by = 5),
-                       sec.axis = sec_axis(~.*.18, name = bquote(bold("Standing Biomass Not Harvested, " ~Mg%.%ha^-1)))) +
+    labs(x = "Stem Segment, cm", y = "Cumulative Stem Mass, %") +
+    scale_y_continuous(breaks = seq(0, ceiling(max(serf_segment_data_cumulative$cumulative_segment_mass_percent)), by = 5)) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold"),
           axis.text = element_text(face = "bold"),
           legend.text = element_text(face = "bold"),
           legend.title = element_text(face = "bold"))
 
-ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.jpg",
+ggsave(plot = p6, filename = "visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff",
          height = 8, width = 8, units = "in")

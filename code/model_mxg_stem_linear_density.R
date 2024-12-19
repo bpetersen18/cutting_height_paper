@@ -8,23 +8,22 @@
 # 1. data/internal/mxg/serf_segment_data.csv: CSV file containing segment data.
 
 # Outputs:
-# 1. visuals/mxg_stem_model/stem_count_boxplot.tiff: Boxplot of stem counts.
-# 2. data/internal/mxg/segment_linear_density_stats.csv: CSV file with segment linear density statistics.
-# 3. visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff: Boxplot of stem linear density vs nitrogen rate.
-# 4. visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff: QQ plot of stem linear density vs nitrogen rate.
-# 5. data/internal/mxg/segment_rel_linear_density_stats.csv: CSV file with segment relative linear density statistics.
-# 6. visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff: Boxplot of relative linear density vs nitrogen rate.
-# 7. visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff: QQ plot of relative linear density vs nitrogen rate.
-# 8. visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff: Plot of stem linear density vs segment nitrogen rate factor.
-# 9. visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff: Plot of stem cumulative mass vs segment nitrogen rate factor.
-# 10. visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff: Plot of relative linear density vs segment nitrogen rate factor.
-# 11. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff: Plot of cumulative mass percent vs segment nitrogen rate factor.
-# 12. visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff: Plot of relative linear density vs segment.
-# 13. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff: Plot of cumulative mass percent vs segment.
-# 14. data/internal/mxg/stem_model.rds: RDS file containing the stem model.
-# 15. data/internal/mxg/final_linear_regression_inferences.csv: CSV file with final linear regression inferences.
-# 16. data/internal/mxg/model_params.csv: CSV file with model parameters.
-# 17. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff: Plot of cumulative mass percent vs segment.
+# 1. visuals/mxg_stem_model/stem_count_boxplot.tiff
+# 2. data/internal/mxg/segment_linear_density_stats.csv
+# 3. visuals/mxg_stem_model/stem_linear_density_vs_nrate_boxplot.tiff
+# 4. visuals/mxg_stem_model/stem_linear_density_vs_nrate_qqplot.tiff
+# 5. data/internal/mxg/segment_rel_linear_density_stats.csv
+# 6. visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_boxplot.tiff
+# 7. visuals/mxg_stem_model/stem_rel_linear_density_vs_nrate_qqplot.tiff
+# 8. visuals/mxg_stem_model/stem_linear_density_vs_segment_nrate_factor.tiff
+# 9. visuals/mxg_stem_model/stem_cumulative_mass_vs_segment_nrate_factor.tiff
+# 10. visuals/mxg_stem_model/stem_rel_linear_density_vs_segment_nrate_factor.tiff
+# 11. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment_nrate_factor.tiff
+# 12. visuals/mxg_stem_model/stem_rel_linear_density_vs_segment.tiff
+# 13. visuals/mxg_stem_model/stem_cumulative_mass_percent_vs_segment.tiff
+# 14. data/internal/mxg/stem_model.rds
+# 15. data/internal/mxg/final_linear_regression_inferences.csv
+# 16. data/internal/mxg/model_params.csv
 
 # Install nlraa if not installed in the current library
 if (!require("nlraa")){install.packages("nlraa", .libPaths(), repos = "https://mirror.las.iastate.edu/CRAN/")}

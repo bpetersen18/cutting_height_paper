@@ -1,5 +1,5 @@
 # Data from: Approximately 15% of miscanthus yield is lost at current commercial cutting heights in Iowa
-*Add DOI*
+[https://doi.org/10.1002/agg2.70039](https://doi.org/10.1002/agg2.70039)
 
 ## How to perform the analysis and generate the figures
 Before you can run the analysis, you will need to make sure git and conda is installed on your computer. You can download git from [here](https://git-scm.com/downloads) and conda from [here](https://docs.conda.io/en/latest/miniconda.html). Once you have installed git and conda, you can follow the steps below to run the analysis.
